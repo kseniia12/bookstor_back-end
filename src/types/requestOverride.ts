@@ -1,4 +1,3 @@
-import { TodoEntity } from "../db/entities/todo.entity";
 import { UserEntity } from "../db/entities/user.entity";
 
 declare global {
@@ -7,7 +6,6 @@ declare global {
     interface Request {
       // eslint-disable-line @typescript-eslint/naming-convention
       user?: UserEntity;
-      todo?: TodoEntity;
     }
   }
 }
