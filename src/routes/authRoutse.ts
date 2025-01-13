@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser } from "../controllers/userController";
+import { createUser, loginUser } from "../controllers/userController";
 // import { createUser, loginUser } from "../controllers/userController";
 // import {
 //   userLoginSchema,
@@ -10,7 +10,7 @@ import { createUser } from "../controllers/userController";
 export const authRouter = Router();
 
 authRouter.post("/sign-up", createUser);
-// authRouter.post("/sign-in", loginUser);
+authRouter.post("/sign-in", loginUser);
 
 // authRouter.post("/sign-up", validate(userRegistrationSchema), createUser);
 // authRouter.post("/sign-in", validate(userLoginSchema), loginUser);

@@ -3,6 +3,7 @@ import { formDataUser } from "../utils/checkDataUser";
 import { generateAccessToken } from "../utils/utilsToken";
 import {
   createUsersServices,
+  loginUsersServices,
   // editUsersByIdServices,
   // deleteUserByIdServices,
   // loginUsersServices,
@@ -14,6 +15,7 @@ export const createUser = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
+  console.log(req.body);
   try {
     const user = await createUsersServices(req.body);
     const checkUser = formDataUser(user);
@@ -24,21 +26,21 @@ export const createUser = async (
   }
 };
 
-// export const loginUser = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ): Promise<void> => {
-//   try {
-//     const { email, password } = req.body;
-//     const user = await loginUsersServices(email, password);
-//     const checkUser = formDataUser(user);
-//     const token = await generateAccessToken(checkUser);
-//     res.status(200).json({ user, token });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+    const user = await loginUsersServices(email, password);
+    const checkUser = formDataUser(user);
+    const token = await generateAccessToken(checkUser);
+    res.status(200).json({ user, token });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // export const getAllUsers = async (
 //   req: Request,

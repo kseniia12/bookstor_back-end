@@ -1,9 +1,8 @@
 import * as dotenv from "dotenv";
-import { hashPassword } from "../utils/hashing";
-// import { verifyPassword, hashPassword } from "../utils/hashing";
+import { verifyPassword, hashPassword } from "../utils/hashing";
 import { userRepository } from "../repository/userRepository";
 import { userObject } from "../lib/componets";
-// import { CustomError } from "../utils/errorHandler";
+import { CustomError } from "../utils/errorHandler";
 
 dotenv.config();
 
@@ -16,17 +15,17 @@ export const createUsersServices = async (userData: userObject) => {
   return userRepository.save(newUser);
 };
 
-// export const loginUsersServices = async (email: string, password: string) => {
-//   const user = await userRepository.findOne({ where: { email } });
-//   if (!user) {
-//     throw new CustomError("User not found", 404);
-//   }
-//   const passwordUser = verifyPassword(password, user.password);
-//   if (!passwordUser) {
-//     throw new CustomError("Invalid password", 401);
-//   }
-//   return user;
-// };
+export const loginUsersServices = async (email: string, password: string) => {
+  const user = await userRepository.findOne({ where: { email } });
+  if (!user) {
+    throw new CustomError("User not found", 404);
+  }
+  const passwordUser = verifyPassword(password, user.password);
+  if (!passwordUser) {
+    throw new CustomError("Invalid password", 401);
+  }
+  return user;
+};
 
 // export const getAllUsersServices = async () => {
 //   return userRepository.find();
