@@ -27,6 +27,13 @@ export const loginUsersServices = async (email: string, password: string) => {
   return user;
 };
 
+export const createUsersPhoto = async (userData: userObject) => {
+  const newUser = userRepository.create({
+    photo: userData.photo,
+  });
+  return userRepository.save(newUser);
+};
+
 // export const getAllUsersServices = async () => {
 //   return userRepository.find();
 // };

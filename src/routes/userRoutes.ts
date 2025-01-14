@@ -1,4 +1,6 @@
-// import { Router } from "express";
+import { Router } from "express";
+import { uploadingPhoto } from "../controllers/userController";
+import { authenticateToken } from "../middlewares/authMiddleware";
 // import {
 //   getAllUsers,
 //   getUserById,
@@ -7,8 +9,8 @@
 // } from "../controllers/userController";
 // import { userEditSchema, validate } from "../utils/validation";
 // import { authenticateToken } from "../middlewares/authMiddleware";
-// export const userRouter = Router();
-
+export const userRouter = Router();
+userRouter.post("/upload", authenticateToken, uploadingPhoto);
 // userRouter.get("", authenticateToken, getAllUsers);
 // userRouter.get("/me", authenticateToken, getUserById);
 // userRouter.patch(

@@ -11,4 +11,16 @@ export interface userObject {
   email?: string;
   password?: string;
   dob?: string;
+  photo?: string;
+}
+
+export interface IUploadedFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  destination: string;
+  filename: string;
+  path: string;
+  size: number;
 }

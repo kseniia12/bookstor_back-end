@@ -13,4 +13,7 @@ export class UserEntity {
 
   @Column()
   password: string;
+
+  @Column({ nullable: true })
+  photo: string;
 }

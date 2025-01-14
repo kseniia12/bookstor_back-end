@@ -8,13 +8,10 @@ import { errorHandler } from "./src/utils/errorHandler";
 
 const app = express();
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-
 app.use(express.json());
 app.use(corsMiddlewareWrapper);
 app.use(express.urlencoded({ extended: true }));
 app.use(allRouter);
-
 app.use(errorHandler);
 
 AppDataSource.initialize()

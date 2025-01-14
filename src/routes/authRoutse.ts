@@ -11,6 +11,5 @@ export const authRouter = Router();
 
 authRouter.post("/sign-up", createUser);
 authRouter.post("/sign-in", loginUser);
-
 // authRouter.post("/sign-up", validate(userRegistrationSchema), createUser);
 // authRouter.post("/sign-in", validate(userLoginSchema), loginUser);

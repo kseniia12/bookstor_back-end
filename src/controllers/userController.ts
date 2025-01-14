@@ -9,13 +9,13 @@ import {
   // loginUsersServices,
   // getAllUsersServices,
 } from "../services/userServices";
+import { handleSingleUploadFile } from "../utils/uploadSingle";
 
 export const createUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  console.log(req.body);
   try {
     const user = await createUsersServices(req.body);
     const checkUser = formDataUser(user);
@@ -39,6 +39,19 @@ export const loginUser = async (
     res.status(200).json({ user, token });
   } catch (error) {
     next(error);
+  }
+};
+
+export const uploadingPhoto = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
+  let uploadResult;
+  try {
+    uploadResult = await handleSingleUploadFile(req, res);
+    console.log("rerererrrrrrrrrrrrrrr", uploadResult.file.filename);
+  } catch (e) {
+    return res.status(422).json({ errors: [e.message] });
   }
 };
 
