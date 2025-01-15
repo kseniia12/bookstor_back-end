@@ -5,9 +5,11 @@ import allRouter from "./src/routes/allRoutes";
 import config from "./src/config/config";
 import corsMiddlewareWrapper from "./src/middlewares/corsMiddleware";
 import { errorHandler } from "./src/utils/errorHandler";
+import * as path from "path";
 
 const app = express();
 
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(corsMiddlewareWrapper);
 app.use(express.urlencoded({ extended: true }));

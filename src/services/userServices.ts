@@ -27,11 +27,13 @@ export const loginUsersServices = async (email: string, password: string) => {
   return user;
 };
 
-export const createUsersPhoto = async (userData: userObject) => {
-  const newUser = userRepository.create({
-    photo: userData.photo,
-  });
-  return userRepository.save(newUser);
+export const createUsersPhoto = async (photo: string, userId: number) => {
+  const user = await userRepository.findOne({ where: { id: userId } });
+  if (!user) {
+    throw new CustomError("Not fot found", 400);
+  }
+  user.photo = photo;
+  return userRepository.save(user);
 };
 
 // export const getAllUsersServices = async () => {

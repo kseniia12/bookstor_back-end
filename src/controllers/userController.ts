@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { formDataUser } from "../utils/checkDataUser";
 import { generateAccessToken } from "../utils/utilsToken";
 import {
+  createUsersPhoto,
   createUsersServices,
   loginUsersServices,
   // editUsersByIdServices,
@@ -10,6 +11,7 @@ import {
   // getAllUsersServices,
 } from "../services/userServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
+import * as path from "path";
 
 export const createUser = async (
   req: Request,
@@ -45,13 +47,18 @@ export const loginUser = async (
 export const uploadingPhoto = async (
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   let uploadResult;
   try {
     uploadResult = await handleSingleUploadFile(req, res);
-    console.log("rerererrrrrrrrrrrrrrr", uploadResult.file.filename);
-  } catch (e) {
-    return res.status(422).json({ errors: [e.message] });
+    const photo = await uploadResult.file.filename;
+    createUsersPhoto(photo, req.user.id);
+    res
+      .status(201)
+      .json(`http://localhost:3000/upload/${uploadResult.file.filename}`);
+  } catch (error) {
+    next(error);
   }
 };
 

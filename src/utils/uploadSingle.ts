@@ -54,7 +54,6 @@ const handleSingleUploadFile = async (
       if (error) {
         reject(error);
       }
-
       resolve({ file: req.file, body: req.body });
     });
   });
