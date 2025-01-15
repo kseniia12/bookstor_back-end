@@ -4,6 +4,7 @@ import { generateAccessToken } from "../utils/utilsToken";
 import {
   createUsersPhoto,
   createUsersServices,
+  getUsersByIdServices,
   loginUsersServices,
   // editUsersByIdServices,
   // deleteUserByIdServices,
@@ -11,7 +12,6 @@ import {
   // getAllUsersServices,
 } from "../services/userServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
-import * as path from "path";
 
 export const createUser = async (
   req: Request,
@@ -54,9 +54,23 @@ export const uploadingPhoto = async (
     uploadResult = await handleSingleUploadFile(req, res);
     const photo = await uploadResult.file.filename;
     createUsersPhoto(photo, req.user.id);
-    res
-      .status(201)
-      .json(`http://localhost:3000/upload/${uploadResult.file.filename}`);
+    res.status(201).json({
+      photo: `http://localhost:4000/upload/${uploadResult.file.filename}`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const checkUser = await getUsersByIdServices(req.user.id);
+    const user = formDataUser(checkUser);
+    res.json({ user });
   } catch (error) {
     next(error);
   }
@@ -72,20 +86,6 @@ export const uploadingPhoto = async (
 //       const users = await getAllUsersServices();
 //       res.json(users);
 //     }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-// export const getUserById = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ): Promise<void> => {
-//   try {
-//     const getUser = req.user;
-//     const user = formDataUser(getUser);
-//     res.json({ user });
 //   } catch (error) {
 //     next(error);
 //   }

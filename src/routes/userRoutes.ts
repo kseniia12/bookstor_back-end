@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { uploadingPhoto } from "../controllers/userController";
+import { getUserById, uploadingPhoto } from "../controllers/userController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 // import {
 //   getAllUsers,
@@ -11,6 +11,7 @@ import { authenticateToken } from "../middlewares/authMiddleware";
 // import { authenticateToken } from "../middlewares/authMiddleware";
 export const userRouter = Router();
 userRouter.post("/upload", authenticateToken, uploadingPhoto);
+userRouter.get("/g", authenticateToken, getUserById);
 // userRouter.get("", authenticateToken, getAllUsers);
 // userRouter.get("/me", authenticateToken, getUserById);
 // userRouter.patch(

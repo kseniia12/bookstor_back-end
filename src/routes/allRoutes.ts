@@ -6,6 +6,7 @@ const allRouter = Router();
 
 allRouter.use("/auth", authRouter);
 allRouter.use("/users", userRouter);
+allRouter.use("/home", userRouter);
 // allRouter.use("/todos", todoRoutse);
 
 export default allRouter;

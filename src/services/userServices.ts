@@ -40,9 +40,9 @@ export const createUsersPhoto = async (photo: string, userId: number) => {
 //   return userRepository.find();
 // };
 
-// export const getUsersByIdServices = async (id: number) => {
-//   return userRepository.findOneBy({ id });
-// };
+export const getUsersByIdServices = async (id: number) => {
+  return userRepository.findOneBy({ id });
+};
 
 // export const editUsersByIdServices = async (
 //   id: number,
