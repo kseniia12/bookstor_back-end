@@ -44,13 +44,28 @@ export const getUsersByIdServices = async (id: number) => {
   return userRepository.findOneBy({ id });
 };
 
-// export const editUsersByIdServices = async (
-//   id: number,
-//   userData: userObject,
-// ) => {
-//   const user = await userRepository.findOneBy({ id });
-//   return userRepository.save({ ...user, ...userData });
-// };
+export const editUsersByIdServices = async (
+  id: number,
+  userData: userObject,
+) => {
+  const user = await userRepository.findOneBy({ id });
+  return userRepository.save({ ...user, ...userData });
+};
+
+export const editPasswordServices = async (
+  id: number,
+  userData: userObject,
+) => {
+  const user = await userRepository.findOneBy({ id });
+  const oldPasswordhashedPassword = hashPassword(userData.password);
+  const newPasswordhashedPassword = hashPassword(userData.newPassword);
+  if (user.password !== oldPasswordhashedPassword) {
+    throw new CustomError("Invalid password", 400);
+  } else {
+    user.password = newPasswordhashedPassword;
+    return userRepository.save(user);
+  }
+};
 
 // export const deleteUserByIdServices = async (id: number) => {
 //   await userRepository.delete(id);

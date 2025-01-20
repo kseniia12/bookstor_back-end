@@ -12,6 +12,7 @@ export interface userObject {
   password?: string;
   dob?: string;
   photo?: string;
+  newPassword?: string;
 }
 
 export interface IUploadedFile {

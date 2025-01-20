@@ -6,7 +6,8 @@ import {
   createUsersServices,
   getUsersByIdServices,
   loginUsersServices,
-  // editUsersByIdServices,
+  editUsersByIdServices,
+  editPasswordServices,
   // deleteUserByIdServices,
   // loginUsersServices,
   // getAllUsersServices,
@@ -91,19 +92,33 @@ export const getUserById = async (
 //   }
 // };
 
-// export const editUserById = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ): Promise<void> => {
-//   try {
-//     const user = await editUsersByIdServices(req.user.id, req.body);
-//     const checkUser = formDataUser(user);
-//     res.json(checkUser);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const editUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const checkUser = await editUsersByIdServices(req.user.id, req.body.user);
+    const user = formDataUser(checkUser);
+    res.json({ user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    console.log(req.body);
+    await editPasswordServices(req.user.id, req.body.user);
+    res.send({ message: "Ok" });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // export const deleteUserById = async (
 //   req: Request,
