@@ -50,7 +50,6 @@ const handleSingleUploadFile = async (
   res: Response,
 ): Promise<any> => {
   return new Promise((resolve, reject): void => {
-    console.log(req);
     uploadFile(req, res, (error) => {
       if (error) {
         reject(error);
