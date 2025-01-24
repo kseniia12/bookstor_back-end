@@ -15,6 +15,17 @@ export interface userObject {
   newPassword?: string;
 }
 
+export interface bookObject {
+  name: string;
+  priceSoft: number;
+  priceHard: number;
+  description: string;
+  countHard: number;
+  countSoft: number;
+  bestseller: boolean;
+  cover: string;
+}
+
 export interface IUploadedFile {
   fieldname: string;
   originalname: string;
@@ -24,4 +35,16 @@ export interface IUploadedFile {
   filename: string;
   path: string;
   size: number;
+}
+
+export interface Book {
+  id: number;
+  name: string;
+  priceSoft: number;
+  priceHard: number;
+  description: string;
+  cover: string;
+  countHard: number;
+  countSoft: number;
+  bestseller: boolean;
 }

@@ -112,7 +112,6 @@ export const editPassword = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    console.log(req.body);
     await editPasswordServices(req.user.id, req.body.user);
     res.send({ message: "Ok" });
   } catch (error) {

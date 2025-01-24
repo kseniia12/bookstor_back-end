@@ -4,8 +4,8 @@ import * as multer from "multer";
 
 const uploadFilePath = path.resolve(__dirname, "../..", "public/upload");
 
-const getUsername = (email) => {
-  return email.split("@")[0];
+const generateRandomNumber = (min = 0, max = 100) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 const storageFile: multer.StorageEngine = multer.diskStorage({
@@ -15,10 +15,7 @@ const storageFile: multer.StorageEngine = multer.diskStorage({
     file: Express.Multer.File,
     fn: (error: Error | null, filename: string) => void,
   ): void {
-    fn(
-      null,
-      `${new Date().getTime().toString()}-${getUsername(req.user.email)}`,
-    );
+    fn(null, `${new Date().getTime().toString()}-${generateRandomNumber()}`);
   },
 });
 
