@@ -1,7 +1,12 @@
 import * as dotenv from "dotenv";
 
-import { bookObject } from "../lib/componets";
-import { bookRepository } from "../repository/bookRepository";
+import { bookObject, genreAndBookObject, genreObject } from "../lib/componets";
+import {
+  bookRepository,
+  genreRepository,
+  сonnectionBookAndGenresRepository,
+} from "../repository/bookRepository";
+import { In } from "typeorm";
 
 dotenv.config();
 
@@ -25,11 +30,35 @@ export const createBookPhoto = async (photo: string) => {
 
 export const paginationBookService = async (req) => {
   const limit = 12;
-  const page = req.query.page;
-  const booksArray = await bookRepository.find({
-    skip: limit * (page - 1),
-    take: limit,
-  });
+  const page = req.query.page || 1;
+  const filters = req.query.filter;
+
+  let booksArray;
+
+  if (filters && filters.length > 0) {
+    const bookPromises = filters.map(async (filter) => {
+      return await сonnectionBookAndGenresRepository.find({
+        where: { genre: { id: filter } },
+        relations: ["book", "genre"],
+      });
+    });
+
+    const filteredBooks = await Promise.all(bookPromises);
+    const filteredBookIds = filteredBooks
+      .flat()
+      .map((connection) => connection.book.id);
+
+    booksArray = await bookRepository.find({
+      where: { id: In(filteredBookIds) },
+      skip: limit * (page - 1),
+      take: limit,
+    });
+  } else {
+    booksArray = await bookRepository.find({
+      skip: limit * (page - 1),
+      take: limit,
+    });
+  }
   const booksObject = booksArray.reduce((acc, book) => {
     acc[book.id] = book;
     return acc;
@@ -37,18 +66,25 @@ export const paginationBookService = async (req) => {
   return booksObject;
 };
 
-// const page = parseInt(req.query.page as string) || 1;
-// const limit = 12;
-// const skip = (page - 1) * limit;
+export const createGenresServices = async (bookData: genreObject) => {
+  const newGenres = genreRepository.create({
+    name: bookData.name,
+  });
+  return genreRepository.save(newGenres);
+};
 
-// const [books, total] = await bookRepository.findAndCount({
-//   skip,
-//   take: limit,
-// });
-
-// res.json({
-//   books,
-//   total,
-//   page,
-//   pages: Math.ceil(total / limit),
-// });
+export const connectingGenresBooksServices = async (
+  bookData: genreAndBookObject,
+) => {
+  const book = await bookRepository.findOne({ where: { id: bookData.bookId } });
+  const genre = await genreRepository.findOne({
+    where: { id: bookData.genreId },
+  });
+  if (!book || !genre) {
+    throw new Error("Book or Genre not found");
+  }
+  return сonnectionBookAndGenresRepository.save({
+    book: book,
+    genre: genre,
+  });
+};

@@ -26,6 +26,15 @@ export interface bookObject {
   cover: string;
 }
 
+export interface genreObject {
+  name: string;
+}
+
+export interface genreAndBookObject {
+  bookId: number;
+  genreId: number;
+}
+
 export interface IUploadedFile {
   fieldname: string;
   originalname: string;

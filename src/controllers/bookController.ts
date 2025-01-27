@@ -1,7 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import {
+  connectingGenresBooksServices,
   createBookPhoto,
   createBookServices,
+  createGenresServices,
   paginationBookService,
 } from "../services/bookServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
@@ -44,6 +46,32 @@ export const getPaginationBook = async (
 ): Promise<any> => {
   try {
     const book = await paginationBookService(req);
+    res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createGenresController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const book = await createGenresServices(req.body);
+    res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const connectingGenresBooksController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const book = await connectingGenresBooksServices(req.body);
     res.status(201).json({ book });
   } catch (error) {
     next(error);
