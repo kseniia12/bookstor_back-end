@@ -6,7 +6,6 @@ import {
   genreRepository,
   сonnectionBookAndGenresRepository,
 } from "../repository/bookRepository";
-import { In } from "typeorm";
 
 dotenv.config();
 
@@ -33,37 +32,38 @@ export const paginationBookService = async (req) => {
   const page = req.query.page || 1;
   const filters = req.query.filter;
 
-  let booksArray;
+  const queryBuilder = bookRepository.createQueryBuilder("book");
 
   if (filters && filters.length > 0) {
-    const bookPromises = filters.map(async (filter) => {
-      return await сonnectionBookAndGenresRepository.find({
-        where: { genre: { id: filter } },
-        relations: ["book", "genre"],
+    const subQuery = сonnectionBookAndGenresRepository
+      .createQueryBuilder("connection")
+      .select("connection.bookId")
+      .where("connection.genreId IN (:...filters)", { filters })
+      .groupBy("connection.bookId")
+      .having("COUNT(connection.genreId) = :filterCount", {
+        filterCount: filters.length,
       });
-    });
 
-    const filteredBooks = await Promise.all(bookPromises);
-    const filteredBookIds = filteredBooks
-      .flat()
-      .map((connection) => connection.book.id);
-
-    booksArray = await bookRepository.find({
-      where: { id: In(filteredBookIds) },
-      skip: limit * (page - 1),
-      take: limit,
-    });
-  } else {
-    booksArray = await bookRepository.find({
-      skip: limit * (page - 1),
-      take: limit,
-    });
+    queryBuilder
+      .where("book.id IN (" + subQuery.getQuery() + ")")
+      .setParameters(subQuery.getParameters());
   }
+
+  const booksArray = await queryBuilder
+    .skip(limit * (page - 1))
+    .take(limit)
+    .getMany();
+
   const booksObject = booksArray.reduce((acc, book) => {
     acc[book.id] = book;
     return acc;
   }, {});
+
   return booksObject;
+};
+
+export const getFilterServices = async () => {
+  return genreRepository.find();
 };
 
 export const createGenresServices = async (bookData: genreObject) => {

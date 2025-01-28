@@ -3,6 +3,7 @@ import {
   connectingGenresBooksController,
   createBookController,
   createGenresController,
+  getFilter,
   getPaginationBook,
   uploadingPhotoBook,
 } from "../controllers/bookController";
@@ -14,3 +15,4 @@ bookRouter.post("/createGenres", createGenresController);
 bookRouter.post("/connectingGenresBooks", connectingGenresBooksController);
 bookRouter.post("/upload", uploadingPhotoBook);
 bookRouter.get("/pagination", getPaginationBook);
+bookRouter.get("/filter", getFilter);

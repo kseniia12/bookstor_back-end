@@ -4,6 +4,7 @@ import {
   createBookPhoto,
   createBookServices,
   createGenresServices,
+  getFilterServices,
   paginationBookService,
 } from "../services/bookServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
@@ -47,6 +48,19 @@ export const getPaginationBook = async (
   try {
     const book = await paginationBookService(req);
     res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFilter = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
+  try {
+    const filter = await getFilterServices();
+    res.status(201).json({ filter });
   } catch (error) {
     next(error);
   }
