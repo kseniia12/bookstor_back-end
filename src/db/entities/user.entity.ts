@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { RatingEntity } from "./rating.entity";
 
 @Entity("user")
 export class UserEntity {
@@ -16,4 +17,7 @@ export class UserEntity {
 
   @Column({ nullable: true })
   photo: string;
+
+  @OneToMany(() => RatingEntity, (rating) => rating.user)
+  ratings: RatingEntity[];
 }

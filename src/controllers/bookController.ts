@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import {
+  connectingAuthorBooksServices,
   connectingGenresBooksServices,
+  createAuthorServices,
   createBookPhoto,
   createBookServices,
   createGenresServices,
@@ -86,6 +88,32 @@ export const connectingGenresBooksController = async (
 ): Promise<void> => {
   try {
     const book = await connectingGenresBooksServices(req.body);
+    res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createAuthorController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const book = await createAuthorServices(req.body);
+    res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const connectingAuthorBooksController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const book = await connectingAuthorBooksServices(req.body);
     res.status(201).json({ book });
   } catch (error) {
     next(error);

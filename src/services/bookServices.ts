@@ -1,7 +1,13 @@
 import * as dotenv from "dotenv";
 
-import { bookObject, genreAndBookObject, genreObject } from "../lib/componets";
 import {
+  authorAndBookObject,
+  bookObject,
+  genreAndBookObject,
+  genreObject,
+} from "../lib/componets";
+import {
+  authorRepository,
   bookRepository,
   genreRepository,
   сonnectionBookAndGenresRepository,
@@ -28,12 +34,20 @@ export const createBookPhoto = async (photo: string) => {
 };
 
 export const paginationBookService = async (req) => {
+  console.log(req.query)
   const limit = 12;
   const page = req.query.page || 1;
   const filters = req.query.filter;
-
-  const queryBuilder = bookRepository.createQueryBuilder("book");
-
+  const sort = req.query.sort;
+  let field = "book.priceHard";
+  const queryBuilder = bookRepository
+    .createQueryBuilder("book")
+    .leftJoinAndSelect("book.author", "author");
+  // .leftJoinAndSelect(
+  //   "book.connectionBookAndGenres",
+  //   "connectionBookAndGenres",
+  // )
+  // .leftJoinAndSelect("connectionBookAndGenres.genres", "genres");
   if (filters && filters.length > 0) {
     const subQuery = сonnectionBookAndGenresRepository
       .createQueryBuilder("connection")
@@ -49,17 +63,24 @@ export const paginationBookService = async (req) => {
       .setParameters(subQuery.getParameters());
   }
 
+  switch (sort) {
+    case "2":
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      field = "book.name";
+      break;
+    case "3":
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      field = "author.name";
+      break;
+  }
+  console.log(field);
   const booksArray = await queryBuilder
+    .orderBy(field, "ASC")
     .skip(limit * (page - 1))
     .take(limit)
     .getMany();
 
-  const booksObject = booksArray.reduce((acc, book) => {
-    acc[book.id] = book;
-    return acc;
-  }, {});
-
-  return booksObject;
+  return booksArray;
 };
 
 export const getFilterServices = async () => {
@@ -86,5 +107,28 @@ export const connectingGenresBooksServices = async (
   return сonnectionBookAndGenresRepository.save({
     book: book,
     genre: genre,
+  });
+};
+
+export const createAuthorServices = async (bookData: genreObject) => {
+  const author = authorRepository.create({
+    name: bookData.name,
+  });
+  return authorRepository.save(author);
+};
+
+export const connectingAuthorBooksServices = async (
+  bookData: authorAndBookObject,
+) => {
+  const book = await bookRepository.findOne({ where: { id: bookData.bookId } });
+  const author = await authorRepository.findOne({
+    where: { id: bookData.authorId },
+  });
+  if (!book || !author) {
+    throw new Error("Book or Genre not found");
+  }
+  return bookRepository.save({
+    ...book,
+    author: author,
   });
 };

@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
+  connectingAuthorBooksController,
   connectingGenresBooksController,
+  createAuthorController,
   createBookController,
   createGenresController,
   getFilter,
@@ -16,3 +18,5 @@ bookRouter.post("/connectingGenresBooks", connectingGenresBooksController);
 bookRouter.post("/upload", uploadingPhotoBook);
 bookRouter.get("/pagination", getPaginationBook);
 bookRouter.get("/filter", getFilter);
+bookRouter.post("/author", createAuthorController);
+bookRouter.post("/connectingAuthorBooks", connectingAuthorBooksController);

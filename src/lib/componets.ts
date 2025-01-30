@@ -35,6 +35,11 @@ export interface genreAndBookObject {
   genreId: number;
 }
 
+export interface authorAndBookObject {
+  bookId: number;
+  authorId: number;
+}
+
 export interface IUploadedFile {
   fieldname: string;
   originalname: string;
