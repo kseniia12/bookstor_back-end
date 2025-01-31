@@ -51,7 +51,7 @@ export const getPaginationBook = async (
   try {
     const price = await getPriceBooks();
     const book = await paginationBookService(req, price);
-    res.status(201).json({ book });
+    res.status(201).json({ book, price });
   } catch (error) {
     next(error);
   }
