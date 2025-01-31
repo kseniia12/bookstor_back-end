@@ -33,8 +33,16 @@ export const createBookPhoto = async (photo: string) => {
   return bookRepository.save(book);
 };
 
-export const paginationBookService = async (req) => {
-  console.log(req.query)
+export const getPriceBooks = async () => {
+  const price = await bookRepository
+    .createQueryBuilder("price")
+    .select("MAX(price.priceHard)", "maxValue")
+    .addSelect("MIN(price.priceHard)", "minValue")
+    .getRawOne();
+  return price;
+};
+
+export const paginationBookService = async (req, price) => {
   const limit = 12;
   const page = req.query.page || 1;
   const filters = req.query.filter;
@@ -43,11 +51,6 @@ export const paginationBookService = async (req) => {
   const queryBuilder = bookRepository
     .createQueryBuilder("book")
     .leftJoinAndSelect("book.author", "author");
-  // .leftJoinAndSelect(
-  //   "book.connectionBookAndGenres",
-  //   "connectionBookAndGenres",
-  // )
-  // .leftJoinAndSelect("connectionBookAndGenres.genres", "genres");
   if (filters && filters.length > 0) {
     const subQuery = сonnectionBookAndGenresRepository
       .createQueryBuilder("connection")
@@ -73,13 +76,26 @@ export const paginationBookService = async (req) => {
       field = "author.name";
       break;
   }
-  console.log(field);
+  const minPrice =
+    req.query.maxPrice == undefined ? price.minValue : req.query.minPrice;
+
+  const maxPrice =
+    req.query.maxPrice == undefined ? price.maxValue : req.query.maxPrice;
+
+  const min = minPrice.toString();
+  const max = maxPrice.toString();
+
   const booksArray = await queryBuilder
     .orderBy(field, "ASC")
+    .andWhere("book.priceHard > :minPrice", {
+      minPrice: min,
+    })
+    .andWhere("book.priceHard < :maxPrice", {
+      maxPrice: max,
+    })
     .skip(limit * (page - 1))
     .take(limit)
     .getMany();
-
   return booksArray;
 };
 
