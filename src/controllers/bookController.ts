@@ -1,11 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import {
+  addToCartServices,
   connectingAuthorBooksServices,
   connectingGenresBooksServices,
   createAuthorServices,
   createBookPhoto,
   createBookServices,
   createGenresServices,
+  getBookFromCartServices,
   getFilterServices,
   getPriceBooks,
   paginationBookService,
@@ -117,6 +119,34 @@ export const connectingAuthorBooksController = async (
   try {
     const book = await connectingAuthorBooksServices(req.body);
     res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addToCartController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const idUser = req.user.id;
+    const book = await addToCartServices(idUser, req.body);
+    res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getBookFromCartController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const idUser = req.user;
+    const book = await getBookFromCartServices(idUser);
+    res.status(201).json(book);
   } catch (error) {
     next(error);
   }

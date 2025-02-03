@@ -3,15 +3,18 @@ import * as dotenv from "dotenv";
 import {
   authorAndBookObject,
   bookObject,
+  cartObject,
   genreAndBookObject,
   genreObject,
 } from "../lib/componets";
 import {
   authorRepository,
   bookRepository,
+  cartRepository,
   genreRepository,
   сonnectionBookAndGenresRepository,
 } from "../repository/bookRepository";
+import { userRepository } from "../repository/userRepository";
 
 dotenv.config();
 
@@ -147,4 +150,37 @@ export const connectingAuthorBooksServices = async (
     ...book,
     author: author,
   });
+};
+
+export const addToCartServices = async (
+  userId: number,
+  bookData: cartObject,
+) => {
+  console.log(bookData);
+  const user = await userRepository.findOne({ where: { id: userId } });
+  const book = await bookRepository.findOne({ where: { id: bookData.bookId } });
+  await cartRepository.save({
+    user: user,
+    book: book,
+    count: bookData.count || 1,
+  });
+};
+
+export const getBookFromCartServices = async (userId) => {
+  const books = await cartRepository.find({
+    where: { user: userId },
+    relations: {
+      book: {
+        author: true,
+      },
+    },
+  });
+  const totalPrice = books.reduce((acc, cartItem) => {
+    return acc + cartItem.book.priceHard * cartItem.count;
+  }, 0);
+  const book = books.map((k) => {
+    const { book } = k;
+    return book;
+  });
+  return { book, totalPrice };
 };

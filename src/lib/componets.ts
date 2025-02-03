@@ -40,6 +40,11 @@ export interface authorAndBookObject {
   authorId: number;
 }
 
+export interface cartObject {
+  bookId: number;
+  count: number;
+}
+
 export interface IUploadedFile {
   fieldname: string;
   originalname: string;

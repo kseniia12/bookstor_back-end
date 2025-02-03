@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { RatingEntity } from "./rating.entity";
+import { CartItemEntity } from "./cart.entity";
 
 @Entity("user")
 export class UserEntity {
@@ -20,4 +21,10 @@ export class UserEntity {
 
   @OneToMany(() => RatingEntity, (rating) => rating.user)
   ratings: RatingEntity[];
+
+  @OneToMany(() => CartItemEntity, (cart) => cart.user)
+  cartItems: CartItemEntity[];
+
+  // @OneToOne(() => CartItemEntity, (cart) => cart.user)
+  // cart: CartItemEntity;
 }

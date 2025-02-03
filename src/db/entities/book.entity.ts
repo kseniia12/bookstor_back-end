@@ -8,6 +8,7 @@ import {
 import { ConnectionBookAndGenres } from "./connectionBookAndGenres.entity";
 import { AuthorEntity } from "./author.entity";
 import { RatingEntity } from "./rating.entity";
+import { CartItemEntity } from "./cart.entity";
 
 @Entity("book")
 export class BookEntity {
@@ -46,4 +47,10 @@ export class BookEntity {
 
   @OneToMany(() => RatingEntity, (rating) => rating.book)
   ratings: RatingEntity[];
+
+  @OneToMany(() => CartItemEntity, (cartItem) => cartItem.book)
+  cartItems: CartItemEntity[];
+
+  // @ManyToOne(() => CartItemEntity, (cart) => cart.books)
+  // cart: CartItemEntity;
 }
