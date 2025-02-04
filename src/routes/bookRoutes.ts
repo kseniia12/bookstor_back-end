@@ -25,3 +25,4 @@ bookRouter.post("/author", createAuthorController);
 bookRouter.post("/connectingAuthorBooks", connectingAuthorBooksController);
 bookRouter.post("/cart", authenticateToken, addToCartController);
 bookRouter.get("/cart", authenticateToken, getBookFromCartController);
+bookRouter.delete("/cart", authenticateToken, getBookFromCartController);
