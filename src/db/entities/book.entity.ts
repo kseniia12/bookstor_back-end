@@ -9,6 +9,7 @@ import { ConnectionBookAndGenres } from "./connectionBookAndGenres.entity";
 import { AuthorEntity } from "./author.entity";
 import { RatingEntity } from "./rating.entity";
 import { CartItemEntity } from "./cart.entity";
+import { FavoritesEntity } from "./favorites.entity";
 
 @Entity("book")
 export class BookEntity {
@@ -51,6 +52,6 @@ export class BookEntity {
   @OneToMany(() => CartItemEntity, (cartItem) => cartItem.book)
   cartItems: CartItemEntity[];
 
-  // @ManyToOne(() => CartItemEntity, (cart) => cart.books)
-  // cart: CartItemEntity;
+  @OneToMany(() => FavoritesEntity, (cartItem) => cartItem.book)
+  favorites: FavoritesEntity[];
 }

@@ -9,6 +9,8 @@ import {
   getBookFromCartController,
   getFilter,
   getPaginationBook,
+  getReccomendationsBookController,
+  rateBookController,
   uploadingPhotoBook,
 } from "../controllers/bookController";
 import { authenticateToken } from "../middlewares/authMiddleware";
@@ -26,3 +28,9 @@ bookRouter.post("/connectingAuthorBooks", connectingAuthorBooksController);
 bookRouter.post("/cart", authenticateToken, addToCartController);
 bookRouter.get("/cart", authenticateToken, getBookFromCartController);
 bookRouter.delete("/cart", authenticateToken, getBookFromCartController);
+bookRouter.get(
+  "/recommendations",
+  authenticateToken,
+  getReccomendationsBookController,
+);
+bookRouter.patch("/rating", authenticateToken, rateBookController);

@@ -10,7 +10,9 @@ import {
   getBookFromCartServices,
   getFilterServices,
   getPriceBooks,
+  getReccomendationsBookServices,
   paginationBookService,
+  rateBookServices,
 } from "../services/bookServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
 
@@ -132,7 +134,7 @@ export const addToCartController = async (
   try {
     const idUser = req.user.id;
     const book = await addToCartServices(idUser, req.body);
-    res.status(201).json({ book });
+    res.status(201).json(book);
   } catch (error) {
     next(error);
   }
@@ -147,6 +149,32 @@ export const getBookFromCartController = async (
     const idUser = req.user;
     const book = await getBookFromCartServices(idUser);
     res.status(201).json(book);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getReccomendationsBookController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const book = await getReccomendationsBookServices(req.query.bookId);
+    res.status(201).json({ book });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rateBookController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    await rateBookServices(req.user.id, req.body);
+    res.status(201).json({ bookId: req.body.bookId, rate: req.body.rate });
   } catch (error) {
     next(error);
   }

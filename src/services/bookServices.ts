@@ -3,7 +3,6 @@ import * as dotenv from "dotenv";
 import {
   authorAndBookObject,
   bookObject,
-  cartObject,
   genreAndBookObject,
   genreObject,
 } from "../lib/componets";
@@ -12,9 +11,11 @@ import {
   bookRepository,
   cartRepository,
   genreRepository,
+  ratingRepository,
   сonnectionBookAndGenresRepository,
 } from "../repository/bookRepository";
 import { userRepository } from "../repository/userRepository";
+import { In, Not } from "typeorm";
 
 dotenv.config();
 
@@ -152,18 +153,32 @@ export const connectingAuthorBooksServices = async (
   });
 };
 
-export const addToCartServices = async (
-  userId: number,
-  bookData: cartObject,
-) => {
-  console.log(bookData);
+export const addToCartServices = async (userId, bookData) => {
   const user = await userRepository.findOne({ where: { id: userId } });
-  const book = await bookRepository.findOne({ where: { id: bookData.bookId } });
+  const bookId = await bookRepository.findOne({
+    where: { id: bookData.bookId },
+  });
   await cartRepository.save({
     user: user,
-    book: book,
+    book: bookId,
     count: bookData.count || 1,
   });
+  const books = await cartRepository.find({
+    where: { user: userId },
+    relations: {
+      book: {
+        author: true,
+      },
+    },
+  });
+  const totalPrice = books.reduce((acc, cartItem) => {
+    return acc + cartItem.book.priceHard * cartItem.count;
+  }, 0);
+  const book = books.map((k) => {
+    const { book } = k;
+    return book;
+  });
+  return { book, totalPrice };
 };
 
 export const getBookFromCartServices = async (userId) => {
@@ -183,4 +198,46 @@ export const getBookFromCartServices = async (userId) => {
     return book;
   });
   return { book, totalPrice };
+};
+
+export const getReccomendationsBookServices = async (bookId) => {
+  const genres = await сonnectionBookAndGenresRepository.find({
+    where: { book: { id: bookId } },
+    relations: {
+      genre: true,
+    },
+  });
+
+  const genreIds = genres.map((genre) => genre.genre.id);
+
+  const recommendations = await сonnectionBookAndGenresRepository.find({
+    take: 4,
+    where: {
+      genre: { id: In(genreIds) },
+      book: { id: Not(bookId) },
+    },
+    relations: {
+      book: {
+        author: true,
+      },
+    },
+  });
+  const book = recommendations.map((book) => book.book);
+  return book;
+};
+
+export const rateBookServices = async (userId, bookData) => {
+  const rate = await ratingRepository.findOne({
+    where: { user: { id: userId }, book: { id: bookData.bookId } },
+  });
+  if (rate !== null) {
+    rate.rate = bookData.rate;
+    await ratingRepository.save(rate);
+  } else {
+    await ratingRepository.save({
+      user: userId,
+      book: bookData.bookId,
+      rate: bookData.rate,
+    });
+  }
 };
