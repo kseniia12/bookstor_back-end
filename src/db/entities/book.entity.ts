@@ -10,6 +10,7 @@ import { AuthorEntity } from "./author.entity";
 import { RatingEntity } from "./rating.entity";
 import { CartItemEntity } from "./cart.entity";
 import { FavoritesEntity } from "./favorites.entity";
+import { CommentsEntity } from "./comments.entity";
 
 @Entity("book")
 export class BookEntity {
@@ -54,4 +55,7 @@ export class BookEntity {
 
   @OneToMany(() => FavoritesEntity, (cartItem) => cartItem.book)
   favorites: FavoritesEntity[];
+
+  @OneToMany(() => CommentsEntity, (comments) => comments.book)
+  comments: CommentsEntity[];
 }

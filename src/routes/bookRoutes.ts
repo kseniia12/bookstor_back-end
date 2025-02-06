@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  addCommentController,
   addToCartController,
   connectingAuthorBooksController,
   connectingGenresBooksController,
@@ -9,6 +10,7 @@ import {
   getBookFromCartController,
   getFilter,
   getPaginationBook,
+  getrateBookController,
   getReccomendationsBookController,
   rateBookController,
   uploadingPhotoBook,
@@ -34,3 +36,5 @@ bookRouter.get(
   getReccomendationsBookController,
 );
 bookRouter.patch("/rating", authenticateToken, rateBookController);
+bookRouter.get("/rating", getrateBookController);
+bookRouter.post("/comment", authenticateToken, addCommentController);

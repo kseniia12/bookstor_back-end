@@ -10,6 +10,7 @@ import {
   authorRepository,
   bookRepository,
   cartRepository,
+  commentsRepository,
   genreRepository,
   ratingRepository,
   сonnectionBookAndGenresRepository,
@@ -52,9 +53,11 @@ export const paginationBookService = async (req, price) => {
   const filters = req.query.filter;
   const sort = req.query.sort;
   let field = "book.priceHard";
+
   const queryBuilder = bookRepository
     .createQueryBuilder("book")
     .leftJoinAndSelect("book.author", "author");
+
   if (filters && filters.length > 0) {
     const subQuery = сonnectionBookAndGenresRepository
       .createQueryBuilder("connection")
@@ -72,35 +75,52 @@ export const paginationBookService = async (req, price) => {
 
   switch (sort) {
     case "2":
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       field = "book.name";
       break;
     case "3":
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       field = "author.name";
       break;
   }
-  const minPrice =
-    req.query.maxPrice == undefined ? price.minValue : req.query.minPrice;
 
+  const minPrice =
+    req.query.minPrice == undefined ? price.minValue : req.query.minPrice;
   const maxPrice =
     req.query.maxPrice == undefined ? price.maxValue : req.query.maxPrice;
 
-  const min = minPrice.toString();
-  const max = maxPrice.toString();
-
   const booksArray = await queryBuilder
     .orderBy(field, "ASC")
-    .andWhere("book.priceHard > :minPrice", {
-      minPrice: min,
-    })
-    .andWhere("book.priceHard < :maxPrice", {
-      maxPrice: max,
-    })
+    .andWhere("book.priceHard > :minPrice", { minPrice })
+    .andWhere("book.priceHard < :maxPrice", { maxPrice })
     .skip(limit * (page - 1))
     .take(limit)
     .getMany();
-  return booksArray;
+
+  // Fetch ratings for the retrieved books
+  const ratings = await ratingRepository.find({
+    where: { book: In(booksArray.map((book) => book.id)) },
+    relations: ["book"],
+  });
+
+  const ratingSums: { [bookId: number]: { sum: number; count: number } } = {};
+
+  ratings.forEach((rating) => {
+    const bookId = rating.book.id;
+    if (!ratingSums[bookId]) {
+      ratingSums[bookId] = { sum: 0, count: 0 };
+    }
+    ratingSums[bookId].sum += rating.rate;
+    ratingSums[bookId].count += 1;
+  });
+
+  const booksWithAverageRating = booksArray.map((book) => {
+    const ratingSum = ratingSums[book.id];
+    const averageRating = ratingSum
+      ? Math.ceil(ratingSum.sum / ratingSum.count)
+      : 0;
+    return { ...book, averageRating };
+  });
+
+  return booksWithAverageRating;
 };
 
 export const getFilterServices = async () => {
@@ -240,4 +260,49 @@ export const rateBookServices = async (userId, bookData) => {
       rate: bookData.rate,
     });
   }
+};
+
+export const getrateBookServices = async () => {
+  const ratings = await ratingRepository.find({ relations: ["book"] });
+  const ratingSums: { [bookId: number]: { sum: number; count: number } } = {};
+
+  ratings.forEach((rating) => {
+    const bookId = rating.book.id;
+    if (!ratingSums[bookId]) {
+      ratingSums[bookId] = { sum: 0, count: 0 };
+    }
+    ratingSums[bookId].sum += rating.rate;
+    ratingSums[bookId].count += 1;
+  });
+
+  const books = await bookRepository.find();
+
+  const booksWithAverageRating = books.map((book) => {
+    const ratingSum = ratingSums[book.id];
+    const averageRating = ratingSum
+      ? Math.ceil(ratingSum.sum / ratingSum.count)
+      : 0;
+    return { averageRating };
+  });
+
+  return booksWithAverageRating;
+};
+
+export const addCommentServices = async (
+  data: {
+    comment: string;
+    date: string;
+    bookId: number;
+  },
+  userId,
+) => {
+  await commentsRepository.save({
+    user: { id: userId },
+    book: { id: data.bookId },
+    text: data.comment,
+    data: new Date(data.date),
+  });
+  const user = await userRepository.findOne({ where: { id: userId } });
+  const { fullName, photo } = user;
+  return { fullName, photo };
 };

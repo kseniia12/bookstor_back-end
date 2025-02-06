@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import {
+  addCommentServices,
   addToCartServices,
   connectingAuthorBooksServices,
   connectingGenresBooksServices,
@@ -10,6 +11,7 @@ import {
   getBookFromCartServices,
   getFilterServices,
   getPriceBooks,
+  getrateBookServices,
   getReccomendationsBookServices,
   paginationBookService,
   rateBookServices,
@@ -175,6 +177,40 @@ export const rateBookController = async (
   try {
     await rateBookServices(req.user.id, req.body);
     res.status(201).json({ bookId: req.body.bookId, rate: req.body.rate });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getrateBookController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const rate = await getrateBookServices();
+    res.status(201).json(rate);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addCommentController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const user = await addCommentServices(req.body, req.user.id);
+    res.status(201).json({
+      bookId: req.body.bookId,
+      comment: req.body.comment,
+      date: req.body.date,
+      user: {
+        fullName: user.fullName,
+        photo: `http://localhost:4000/upload/${user.photo}`,
+      },
+    });
   } catch (error) {
     next(error);
   }

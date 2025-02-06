@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { RatingEntity } from "./rating.entity";
 import { CartItemEntity } from "./cart.entity";
 import { FavoritesEntity } from "./favorites.entity";
+import { CommentsEntity } from "./comments.entity";
 
 @Entity("user")
 export class UserEntity {
@@ -29,6 +30,6 @@ export class UserEntity {
   @OneToMany(() => FavoritesEntity, (favorites) => favorites.user)
   favorites: FavoritesEntity[];
 
-  // @OneToOne(() => CartItemEntity, (cart) => cart.user)
-  // cart: CartItemEntity;
+  @OneToMany(() => CommentsEntity, (comments) => comments.user)
+  comments: CommentsEntity[];
 }
