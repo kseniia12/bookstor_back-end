@@ -1,4 +1,7 @@
-import { favoritesRepository } from "../repository/bookRepository";
+import {
+  favoritesRepository,
+  ratingRepository,
+} from "../repository/bookRepository";
 
 export const addToFavoritesServices = async (userId, bookData) => {
   const favorites = await favoritesRepository.find({
@@ -41,7 +44,7 @@ export const addToFavoritesServices = async (userId, bookData) => {
 };
 
 export const getBookFromFavoritesServices = async (userId) => {
-  const books = await favoritesRepository.find({
+  const favorites = await favoritesRepository.find({
     where: { user: userId },
     relations: {
       book: {
@@ -49,9 +52,29 @@ export const getBookFromFavoritesServices = async (userId) => {
       },
     },
   });
-  const book = books.map((k) => {
-    const { book } = k;
-    return book;
+
+  const favoriteBooks = favorites.map((favorite) => favorite.book);
+
+  // Fetch ratings for all books
+  const ratings = await ratingRepository.find({ relations: ["book"] });
+  const ratingSums = {};
+
+  ratings.forEach((rating) => {
+    const bookId = rating.book.id;
+    if (!ratingSums[bookId]) {
+      ratingSums[bookId] = { sum: 0, count: 0 };
+    }
+    ratingSums[bookId].sum += rating.rate;
+    ratingSums[bookId].count += 1;
+  });
+
+  // Attach average ratings to favorite books
+  const book = favoriteBooks.map((book) => {
+    const ratingSum = ratingSums[book.id];
+    const averageRating = ratingSum
+      ? Math.ceil(ratingSum.sum / ratingSum.count)
+      : 0;
+    return { ...book, averageRating };
   });
   return { book };
 };

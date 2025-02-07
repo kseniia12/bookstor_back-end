@@ -8,6 +8,7 @@ import {
   createBookController,
   createGenresController,
   getBookFromCartController,
+  getCommentController,
   getFilter,
   getPaginationBook,
   getrateBookController,
@@ -30,11 +31,8 @@ bookRouter.post("/connectingAuthorBooks", connectingAuthorBooksController);
 bookRouter.post("/cart", authenticateToken, addToCartController);
 bookRouter.get("/cart", authenticateToken, getBookFromCartController);
 bookRouter.delete("/cart", authenticateToken, getBookFromCartController);
-bookRouter.get(
-  "/recommendations",
-  authenticateToken,
-  getReccomendationsBookController,
-);
+bookRouter.get("/recommendations", getReccomendationsBookController);
 bookRouter.patch("/rating", authenticateToken, rateBookController);
 bookRouter.get("/rating", getrateBookController);
 bookRouter.post("/comment", authenticateToken, addCommentController);
+bookRouter.get("/comment", getCommentController);

@@ -95,7 +95,6 @@ export const paginationBookService = async (req, price) => {
     .take(limit)
     .getMany();
 
-  // Fetch ratings for the retrieved books
   const ratings = await ratingRepository.find({
     where: { book: In(booksArray.map((book) => book.id)) },
     relations: ["book"],
@@ -242,7 +241,29 @@ export const getReccomendationsBookServices = async (bookId) => {
       },
     },
   });
-  const book = recommendations.map((book) => book.book);
+  const recommendedBooks = recommendations.map(
+    (recommendation) => recommendation.book,
+  );
+
+  const ratings = await ratingRepository.find({ relations: ["book"] });
+  const ratingSums = {};
+
+  ratings.forEach((rating) => {
+    const bookId = rating.book.id;
+    if (!ratingSums[bookId]) {
+      ratingSums[bookId] = { sum: 0, count: 0 };
+    }
+    ratingSums[bookId].sum += rating.rate;
+    ratingSums[bookId].count += 1;
+  });
+
+  const book = recommendedBooks.map((book) => {
+    const ratingSum = ratingSums[book.id];
+    const averageRating = ratingSum
+      ? Math.ceil(ratingSum.sum / ratingSum.count)
+      : 0;
+    return { ...book, averageRating };
+  });
   return book;
 };
 
@@ -305,4 +326,25 @@ export const addCommentServices = async (
   const user = await userRepository.findOne({ where: { id: userId } });
   const { fullName, photo } = user;
   return { fullName, photo };
+};
+
+export const getCommentServices = async (bookId) => {
+  const comments = await commentsRepository.find({
+    where: { book: { id: bookId } },
+    relations: {
+      user: true,
+    },
+  });
+
+  return comments.map(({ text, data, user }) => {
+    const { fullName, photo } = user;
+    return {
+      comment: text,
+      date: data,
+      user: {
+        fullName: fullName,
+        photo: `http://localhost:4000/upload/${photo}`,
+      },
+    };
+  });
 };

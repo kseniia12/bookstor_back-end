@@ -9,6 +9,7 @@ import {
   createBookServices,
   createGenresServices,
   getBookFromCartServices,
+  getCommentServices,
   getFilterServices,
   getPriceBooks,
   getrateBookServices,
@@ -152,6 +153,7 @@ export const getBookFromCartController = async (
     const book = await getBookFromCartServices(idUser);
     res.status(201).json(book);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -203,7 +205,6 @@ export const addCommentController = async (
   try {
     const user = await addCommentServices(req.body, req.user.id);
     res.status(201).json({
-      bookId: req.body.bookId,
       comment: req.body.comment,
       date: req.body.date,
       user: {
@@ -211,6 +212,19 @@ export const addCommentController = async (
         photo: `http://localhost:4000/upload/${user.photo}`,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCommentController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const book = await getCommentServices(req.query.bookId);
+    res.status(201).json(book);
   } catch (error) {
     next(error);
   }
