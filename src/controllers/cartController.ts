@@ -10,7 +10,7 @@ export const deleteBookFromCartController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await deleteBookFromCartServices(req.body.id);
+    const book = await deleteBookFromCartServices(req.body.id, req.user.id);
     res.status(201).json(book);
   } catch (error) {
     next(error);
@@ -23,8 +23,8 @@ export const patchCountBookController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await patchBookFromCartServices(req.body);
-    console.log(book);
+    const book = await patchBookFromCartServices(req.user.id, req.body);
+    console.log("gggggggggg", book);
     res.status(201).json(book);
   } catch (error) {
     next(error);

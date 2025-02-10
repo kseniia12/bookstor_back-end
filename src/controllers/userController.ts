@@ -70,8 +70,9 @@ export const getUserById = async (
 ): Promise<void> => {
   try {
     const checkUser = await getUsersByIdServices(req.user.id);
-    const user = formDataUser(checkUser);
-    res.json({ user });
+    const ratingBook = checkUser.ratingBook;
+    const user = formDataUser(checkUser.user);
+    res.json({ user, ratingBook });
   } catch (error) {
     next(error);
   }

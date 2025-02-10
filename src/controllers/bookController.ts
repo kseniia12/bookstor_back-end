@@ -177,8 +177,10 @@ export const rateBookController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    await rateBookServices(req.user.id, req.body);
-    res.status(201).json({ bookId: req.body.bookId, rate: req.body.rate });
+    const rate = await rateBookServices(req.user.id, req.body);
+    const user = rate.user;
+    const ratingBook = rate.ratingBook;
+    res.json({ user, ratingBook });
   } catch (error) {
     next(error);
   }

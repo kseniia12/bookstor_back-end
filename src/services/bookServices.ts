@@ -194,8 +194,8 @@ export const addToCartServices = async (userId, bookData) => {
     return acc + cartItem.book.priceHard * cartItem.count;
   }, 0);
   const book = books.map((k) => {
-    const { book } = k;
-    return book;
+    const { book, count } = k;
+    return { ...book, count };
   });
   return { book, totalPrice };
 };
@@ -213,8 +213,8 @@ export const getBookFromCartServices = async (userId) => {
     return acc + cartItem.book.priceHard * cartItem.count;
   }, 0);
   const book = books.map((k) => {
-    const { book } = k;
-    return book;
+    const { book, count } = k;
+    return { ...book, count };
   });
   return { book, totalPrice };
 };
@@ -271,16 +271,31 @@ export const rateBookServices = async (userId, bookData) => {
   const rate = await ratingRepository.findOne({
     where: { user: { id: userId }, book: { id: bookData.bookId } },
   });
+
   if (rate !== null) {
     rate.rate = bookData.rate;
     await ratingRepository.save(rate);
   } else {
     await ratingRepository.save({
-      user: userId,
-      book: bookData.bookId,
+      user: { id: userId },
+      book: { id: bookData.bookId },
       rate: bookData.rate,
     });
   }
+
+  const bookIds = await ratingRepository.find({
+    where: { user: { id: userId } },
+    relations: {
+      book: true,
+    },
+  });
+
+  const ratingBook = bookIds.map((rating) => {
+    return { bookId: rating.book.id, rate: rating.rate };
+  });
+
+  const user = await userRepository.findOneBy({ id: userId });
+  return { user, ratingBook };
 };
 
 export const getrateBookServices = async () => {

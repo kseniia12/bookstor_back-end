@@ -3,6 +3,7 @@ import { verifyPassword, hashPassword } from "../utils/hashing";
 import { userRepository } from "../repository/userRepository";
 import { userObject } from "../lib/componets";
 import { CustomError } from "../utils/errorHandler";
+import { ratingRepository } from "../repository/bookRepository";
 
 dotenv.config();
 
@@ -41,7 +42,18 @@ export const createUsersPhoto = async (photo: string, userId: number) => {
 // };
 
 export const getUsersByIdServices = async (id: number) => {
-  return userRepository.findOneBy({ id });
+  const bookIds = await ratingRepository.find({
+    where: { user: { id: id } },
+    relations: {
+      book: true,
+    },
+  });
+
+  const ratingBook = bookIds.map((rating) => {
+    return { bookId: rating.book.id, rate: rating.rate };
+  });
+  const user = await userRepository.findOneBy({ id });
+  return { user, ratingBook };
 };
 
 export const editUsersByIdServices = async (
