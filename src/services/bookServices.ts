@@ -202,7 +202,7 @@ export const addToCartServices = async (userId, bookData) => {
 
 export const getBookFromCartServices = async (userId) => {
   const books = await cartRepository.find({
-    where: { user: userId },
+    where: { user: { id: userId } },
     relations: {
       book: {
         author: true,

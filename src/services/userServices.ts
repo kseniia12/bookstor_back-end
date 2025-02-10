@@ -8,6 +8,12 @@ import { ratingRepository } from "../repository/bookRepository";
 dotenv.config();
 
 export const createUsersServices = async (userData: userObject) => {
+  const existingUser = await userRepository.findOne({
+    where: { email: userData.email },
+  });
+  if (existingUser) {
+    throw new CustomError("Email already exists", 404);
+  }
   const hashedPassword = hashPassword(userData.password);
   const newUser = userRepository.create({
     email: userData.email,
