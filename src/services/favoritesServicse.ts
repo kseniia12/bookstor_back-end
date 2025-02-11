@@ -1,9 +1,13 @@
+import { IAddFavorites } from "../lib/componets";
 import {
   favoritesRepository,
   ratingRepository,
 } from "../repository/bookRepository";
 
-export const addToFavoritesServices = async (userId, bookData) => {
+export const addToFavoritesServices = async (
+  dataForAddFavoritesBook: IAddFavorites,
+) => {
+  const { userId, bookData } = dataForAddFavoritesBook;
   const favorites = await favoritesRepository.find({
     where: {
       user: { id: userId },
@@ -26,24 +30,22 @@ export const addToFavoritesServices = async (userId, bookData) => {
       book: { id: bookData.bookId },
     });
   }
-
-  const books = await favoritesRepository.find({
-    where: { user: userId },
+  const favoritesBooks = await favoritesRepository.find({
+    where: { user: { id: userId } },
     relations: {
       book: {
         author: true,
       },
     },
   });
-
-  const book = books.map((k) => {
-    const { book } = k;
+  const book = favoritesBooks.map((favorite) => {
+    const { book } = favorite;
     return book;
   });
   return { book };
 };
 
-export const getBookFromFavoritesServices = async (userId) => {
+export const getBookFromFavoritesServices = async (userId: { id: number }) => {
   const favorites = await favoritesRepository.find({
     where: { user: userId },
     relations: {

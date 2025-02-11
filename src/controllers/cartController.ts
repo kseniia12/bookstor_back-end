@@ -24,7 +24,6 @@ export const patchCountBookController = async (
 ): Promise<void> => {
   try {
     const book = await patchBookFromCartServices(req.user.id, req.body);
-    console.log("gggggggggg", book);
     res.status(201).json(book);
   } catch (error) {
     next(error);

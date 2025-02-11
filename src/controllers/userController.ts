@@ -8,9 +8,6 @@ import {
   loginUsersServices,
   editUsersByIdServices,
   editPasswordServices,
-  // deleteUserByIdServices,
-  // loginUsersServices,
-  // getAllUsersServices,
 } from "../services/userServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
 
@@ -35,8 +32,7 @@ export const loginUser = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { email, password } = req.body;
-    const user = await loginUsersServices(email, password);
+    const user = await loginUsersServices(req.body);
     const checkUser = formDataUser(user);
     const token = await generateAccessToken(checkUser);
     res.status(200).json({ user, token });
@@ -54,9 +50,10 @@ export const uploadingPhoto = async (
   try {
     uploadResult = await handleSingleUploadFile(req, res);
     const photo = await uploadResult.file.filename;
-    createUsersPhoto(photo, req.user.id);
+    const userId = req.user.id;
+    createUsersPhoto({ photo, userId });
     res.status(201).json({
-      photo: `http://localhost:4000/upload/${uploadResult.file.filename}`,
+      photo: `${process.env.LOCALAPIURL}/upload/${uploadResult.file.filename}`,
     });
   } catch (error) {
     next(error);
@@ -69,7 +66,8 @@ export const getUserById = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const checkUser = await getUsersByIdServices(req.user.id);
+    const userId = req.user.id;
+    const checkUser = await getUsersByIdServices(userId);
     const ratingBook = checkUser.ratingBook;
     const user = formDataUser(checkUser.user);
     res.json({ user, ratingBook });
@@ -78,28 +76,15 @@ export const getUserById = async (
   }
 };
 
-// export const getAllUsers = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ): Promise<void> => {
-//   try {
-//     if (req.user.id) {
-//       const users = await getAllUsersServices();
-//       res.json(users);
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 export const editUserById = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const checkUser = await editUsersByIdServices(req.user.id, req.body.user);
+    const id = req.user.id;
+    const userData = req.body.user;
+    const checkUser = await editUsersByIdServices({ id, userData });
     const user = formDataUser(checkUser);
     res.json({ user });
   } catch (error) {
@@ -113,22 +98,11 @@ export const editPassword = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    await editPasswordServices(req.user.id, req.body.user);
+    const id = req.user.id;
+    const userData = req.body.user;
+    await editPasswordServices({ id, userData });
     res.send({ message: "Ok" });
   } catch (error) {
     next(error);
   }
 };
-
-// export const deleteUserById = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ): Promise<void> => {
-//   try {
-//     await deleteUserByIdServices(req.user.id);
-//     res.status(204).send("Удален");
-//   } catch (error) {
-//     next(error);
-//   }
-// };

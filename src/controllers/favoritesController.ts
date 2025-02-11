@@ -10,8 +10,9 @@ export const addToFavoritesController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const idUser = req.user.id;
-    const book = await addToFavoritesServices(idUser, req.body);
+    const userId = req.user.id;
+    const bookData = req.body;
+    const book = await addToFavoritesServices({ userId, bookData });
     res.status(201).json(book);
   } catch (error) {
     next(error);

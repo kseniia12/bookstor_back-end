@@ -1,7 +1,12 @@
 import * as dotenv from "dotenv";
 import { verifyPassword, hashPassword } from "../utils/hashing";
 import { userRepository } from "../repository/userRepository";
-import { userObject } from "../lib/componets";
+import {
+  ICreateUsersPhoto,
+  IEditUserById,
+  IUserDataForLogin,
+  userObject,
+} from "../lib/componets";
 import { CustomError } from "../utils/errorHandler";
 import { ratingRepository } from "../repository/bookRepository";
 
@@ -22,7 +27,8 @@ export const createUsersServices = async (userData: userObject) => {
   return userRepository.save(newUser);
 };
 
-export const loginUsersServices = async (email: string, password: string) => {
+export const loginUsersServices = async (userData: IUserDataForLogin) => {
+  const { email, password } = userData;
   const user = await userRepository.findOne({ where: { email } });
   if (!user) {
     throw new CustomError("User not found", 404);
@@ -34,18 +40,14 @@ export const loginUsersServices = async (email: string, password: string) => {
   return user;
 };
 
-export const createUsersPhoto = async (photo: string, userId: number) => {
-  const user = await userRepository.findOne({ where: { id: userId } });
+export const createUsersPhoto = async (userData: ICreateUsersPhoto) => {
+  const user = await userRepository.findOne({ where: { id: userData.userId } });
   if (!user) {
     throw new CustomError("Not fot found", 400);
   }
-  user.photo = photo;
+  user.photo = userData.photo;
   return userRepository.save(user);
 };
-
-// export const getAllUsersServices = async () => {
-//   return userRepository.find();
-// };
 
 export const getUsersByIdServices = async (id: number) => {
   const bookIds = await ratingRepository.find({
@@ -54,7 +56,6 @@ export const getUsersByIdServices = async (id: number) => {
       book: true,
     },
   });
-
   const ratingBook = bookIds.map((rating) => {
     return { bookId: rating.book.id, rate: rating.rate };
   });
@@ -62,18 +63,14 @@ export const getUsersByIdServices = async (id: number) => {
   return { user, ratingBook };
 };
 
-export const editUsersByIdServices = async (
-  id: number,
-  userData: userObject,
-) => {
+export const editUsersByIdServices = async (userInfo: IEditUserById) => {
+  const { id, userData } = userInfo;
   const user = await userRepository.findOneBy({ id });
   return userRepository.save({ ...user, ...userData });
 };
 
-export const editPasswordServices = async (
-  id: number,
-  userData: userObject,
-) => {
+export const editPasswordServices = async (userInfo: IEditUserById) => {
+  const { id, userData } = userInfo;
   const user = await userRepository.findOneBy({ id });
   const oldPasswordhashedPassword = hashPassword(userData.password);
   const newPasswordhashedPassword = hashPassword(userData.newPassword);
@@ -84,7 +81,3 @@ export const editPasswordServices = async (
     return userRepository.save(user);
   }
 };
-
-// export const deleteUserByIdServices = async (id: number) => {
-//   await userRepository.delete(id);
-// };

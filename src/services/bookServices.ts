@@ -1,10 +1,15 @@
 import * as dotenv from "dotenv";
+import config from "../config/config";
 
 import {
   authorAndBookObject,
   bookObject,
+  cartObject,
   genreAndBookObject,
   genreObject,
+  IFilterBook,
+  IPrice,
+  IRateBook,
 } from "../lib/componets";
 import {
   authorRepository,
@@ -47,11 +52,14 @@ export const getPriceBooks = async () => {
   return price;
 };
 
-export const paginationBookService = async (req, price) => {
+export const paginationBookService = async (
+  filter: IFilterBook,
+  price: IPrice,
+) => {
   const limit = 12;
-  const page = req.query.page || 1;
-  const filters = req.query.filter;
-  const sort = req.query.sort;
+  const page = filter.page || 1;
+  const filters = filter.filter;
+  const sort = filter.sort;
   let field = "book.priceHard";
 
   const queryBuilder = bookRepository
@@ -83,15 +91,15 @@ export const paginationBookService = async (req, price) => {
   }
 
   const minPrice =
-    req.query.minPrice == undefined ? price.minValue : req.query.minPrice;
+    filter.minPrice == undefined ? price.minValue : filter.minPrice;
   const maxPrice =
-    req.query.maxPrice == undefined ? price.maxValue : req.query.maxPrice;
+    filter.maxPrice == undefined ? price.maxValue : filter.maxPrice;
 
   const booksArray = await queryBuilder
     .orderBy(field, "ASC")
     .andWhere("book.priceHard > :minPrice", { minPrice })
     .andWhere("book.priceHard < :maxPrice", { maxPrice })
-    .skip(limit * (page - 1))
+    .skip(limit * (Number(page) - 1))
     .take(limit)
     .getMany();
 
@@ -172,35 +180,15 @@ export const connectingAuthorBooksServices = async (
   });
 };
 
-export const addToCartServices = async (userId, bookData) => {
-  const user = await userRepository.findOne({ where: { id: userId } });
-  const bookId = await bookRepository.findOne({
-    where: { id: bookData.bookId },
-  });
+export const addToCartServices = async (
+  userId: number,
+  bookData: cartObject,
+) => {
   await cartRepository.save({
-    user: user,
-    book: bookId,
+    user: { id: userId },
+    book: { id: bookData.bookId },
     count: bookData.count || 1,
   });
-  const books = await cartRepository.find({
-    where: { user: userId },
-    relations: {
-      book: {
-        author: true,
-      },
-    },
-  });
-  const totalPrice = books.reduce((acc, cartItem) => {
-    return acc + cartItem.book.priceHard * cartItem.count;
-  }, 0);
-  const book = books.map((k) => {
-    const { book, count } = k;
-    return { ...book, count };
-  });
-  return { book, totalPrice };
-};
-
-export const getBookFromCartServices = async (userId) => {
   const books = await cartRepository.find({
     where: { user: { id: userId } },
     relations: {
@@ -219,9 +207,28 @@ export const getBookFromCartServices = async (userId) => {
   return { book, totalPrice };
 };
 
-export const getReccomendationsBookServices = async (bookId) => {
+export const getBookFromCartServices = async (userId: number) => {
+  const books = await cartRepository.find({
+    where: { user: { id: userId } },
+    relations: {
+      book: {
+        author: true,
+      },
+    },
+  });
+  const totalPrice = books.reduce((acc, cartItem) => {
+    return acc + cartItem.book.priceHard * cartItem.count;
+  }, 0);
+  const book = books.map((k) => {
+    const { book, count } = k;
+    return { ...book, count };
+  });
+  return { book, totalPrice };
+};
+
+export const getReccomendationsBookServices = async (bookId: string) => {
   const genres = await сonnectionBookAndGenresRepository.find({
-    where: { book: { id: bookId } },
+    where: { book: { id: Number(bookId) } },
     relations: {
       genre: true,
     },
@@ -233,7 +240,7 @@ export const getReccomendationsBookServices = async (bookId) => {
     take: 4,
     where: {
       genre: { id: In(genreIds) },
-      book: { id: Not(bookId) },
+      book: { id: Not(Number(bookId)) },
     },
     relations: {
       book: {
@@ -267,7 +274,8 @@ export const getReccomendationsBookServices = async (bookId) => {
   return book;
 };
 
-export const rateBookServices = async (userId, bookData) => {
+export const rateBookServices = async (userId: number, bookData: IRateBook) => {
+  console.log(bookData);
   const rate = await ratingRepository.findOne({
     where: { user: { id: userId }, book: { id: bookData.bookId } },
   });
@@ -330,7 +338,7 @@ export const addCommentServices = async (
     date: string;
     bookId: number;
   },
-  userId,
+  userId: number,
 ) => {
   await commentsRepository.save({
     user: { id: userId },
@@ -343,9 +351,9 @@ export const addCommentServices = async (
   return { fullName, photo };
 };
 
-export const getCommentServices = async (bookId) => {
+export const getCommentServices = async (bookId: string) => {
   const comments = await commentsRepository.find({
-    where: { book: { id: bookId } },
+    where: { book: { id: Number(bookId) } },
     relations: {
       user: true,
     },
@@ -358,7 +366,7 @@ export const getCommentServices = async (bookId) => {
       date: data,
       user: {
         fullName: fullName,
-        photo: `http://localhost:4000/upload/${photo}`,
+        photo: `${config.local.hosh}/upload/${photo}`,
       },
     };
   });

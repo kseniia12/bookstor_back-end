@@ -67,3 +67,41 @@ export interface Book {
   countSoft: number;
   bestseller: boolean;
 }
+
+export interface IUserDataForLogin {
+  email: string;
+  password: string;
+}
+
+export interface ICreateUsersPhoto {
+  photo: string;
+  userId: number;
+}
+
+export interface IEditUserById {
+  id: number;
+  userData: userObject;
+}
+
+export interface IAddFavorites {
+  userId: number;
+  bookData: authorAndBookObject;
+}
+
+export interface IFilterBook {
+  page?: string;
+  filter?: string[];
+  maxPrice?: string;
+  minPrice?: string;
+  sort?: string;
+}
+
+export interface IPrice {
+  minValue: number;
+  maxValue: number;
+}
+
+export interface IRateBook {
+  bookId: number;
+  rate: number;
+}

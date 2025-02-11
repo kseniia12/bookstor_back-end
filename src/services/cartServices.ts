@@ -1,8 +1,11 @@
+import { cartObject } from "src/lib/componets";
 import { cartRepository } from "../repository/bookRepository";
 
-export const deleteBookFromCartServices = async (bookId, userId) => {
+export const deleteBookFromCartServices = async (
+  bookId: number,
+  userId: number,
+) => {
   await cartRepository.delete({ book: { id: bookId }, user: { id: userId } });
-
   const books = await cartRepository.find({
     where: { user: { id: userId } },
     relations: {
@@ -17,7 +20,10 @@ export const deleteBookFromCartServices = async (bookId, userId) => {
   return { totalPrice };
 };
 
-export const patchBookFromCartServices = async (userId, data) => {
+export const patchBookFromCartServices = async (
+  userId: number,
+  data: cartObject,
+) => {
   const cartItem = await cartRepository.findOne({
     where: {
       user: { id: userId },
@@ -26,7 +32,6 @@ export const patchBookFromCartServices = async (userId, data) => {
   });
   cartItem.count = data.count;
   await cartRepository.save(cartItem);
-
   const books = await cartRepository.find({
     where: { user: { id: userId } },
     relations: {
@@ -38,8 +43,8 @@ export const patchBookFromCartServices = async (userId, data) => {
   const totalPrice = books.reduce((acc, cartItem) => {
     return acc + cartItem.book.priceHard * cartItem.count;
   }, 0);
-  const book = books.map((k) => {
-    const { book, count } = k;
+  const book = books.map((boookData) => {
+    const { book, count } = boookData;
     return { ...book, count };
   });
   return { book, totalPrice };

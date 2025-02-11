@@ -43,7 +43,7 @@ export const uploadingPhotoBook = async (
     const photo = await uploadResult.file.filename;
     createBookPhoto(photo);
     res.status(201).json({
-      photo: `http://localhost:4000/upload/${uploadResult.file.filename}`,
+      photo: `${process.env.LOCALAPIURL}/upload/${uploadResult.file.filename}`,
     });
   } catch (error) {
     next(error);
@@ -57,7 +57,7 @@ export const getPaginationBook = async (
 ): Promise<any> => {
   try {
     const price = await getPriceBooks();
-    const book = await paginationBookService(req, price);
+    const book = await paginationBookService(req.query, price);
     res.status(201).json({ book, price });
   } catch (error) {
     next(error);
@@ -135,8 +135,8 @@ export const addToCartController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const idUser = req.user.id;
-    const book = await addToCartServices(idUser, req.body);
+    const userId = req.user.id;
+    const book = await addToCartServices(userId, req.body);
     res.status(201).json(book);
   } catch (error) {
     next(error);
@@ -149,11 +149,10 @@ export const getBookFromCartController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const idUser = req.user;
-    const book = await getBookFromCartServices(idUser);
+    const userId = req.user.id;
+    const book = await getBookFromCartServices(userId);
     res.status(201).json(book);
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -164,7 +163,8 @@ export const getReccomendationsBookController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await getReccomendationsBookServices(req.query.bookId);
+    const bookId = req.query.bookId as string;
+    const book = await getReccomendationsBookServices(bookId);
     res.status(201).json({ book });
   } catch (error) {
     next(error);
@@ -225,7 +225,8 @@ export const getCommentController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await getCommentServices(req.query.bookId);
+    const bookId = req.query.bookId as string;
+    const book = await getCommentServices(bookId);
     res.status(201).json(book);
   } catch (error) {
     next(error);

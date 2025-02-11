@@ -14,6 +14,9 @@ const config = {
   token: {
     secret: process.env.TOKEN_SECRET,
   },
+  local: {
+    hosh: process.env.LOCALAPIURL,
+  },
 };
 
 export default config;
