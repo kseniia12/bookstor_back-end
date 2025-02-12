@@ -1,20 +1,7 @@
 import { cartRepository } from "../repository/bookRepository";
 
 const deleteBookFromCart = async (bookId: number, userId: number) => {
-  console.log(bookId, userId);
   await cartRepository.delete({ book: { id: bookId }, user: { id: userId } });
-  const books = await cartRepository.find({
-    where: { user: { id: userId } },
-    relations: {
-      book: {
-        author: true,
-      },
-    },
-  });
-  const totalPrice = books.reduce((acc, cartItem) => {
-    return acc + cartItem.book.priceHard * cartItem.count;
-  }, 0);
-  return totalPrice;
 };
 
 const changeCountBooksInCart = async (

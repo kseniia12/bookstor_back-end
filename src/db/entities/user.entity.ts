@@ -1,4 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { RatingEntity } from "./rating.entity";
 import { CartItemEntity } from "./cart.entity";
 import { FavoritesEntity } from "./favorites.entity";
@@ -32,4 +39,17 @@ export class UserEntity {
 
   @OneToMany(() => CommentsEntity, (comments) => comments.user)
   comments: CommentsEntity[];
+
+  @CreateDateColumn({
+    type: "timestamp",
+    default: () => "CURRENT_TIMESTAMP(6)",
+  })
+  public createdAt: Date;
+
+  @UpdateDateColumn({
+    type: "timestamp",
+    default: () => "CURRENT_TIMESTAMP(6)",
+    onUpdate: "CURRENT_TIMESTAMP(6)",
+  })
+  public updatedAt: Date;
 }

@@ -7,11 +7,8 @@ export const deleteBookFromCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const totalPrice = await cartServices.deleteBookFromCart(
-      req.body.id,
-      req.user.id,
-    );
-    res.status(200).json({ totalPrice: totalPrice });
+    await cartServices.deleteBookFromCart(req.body.id, req.user.id);
+    res.status(204);
   } catch (error) {
     next(error);
   }

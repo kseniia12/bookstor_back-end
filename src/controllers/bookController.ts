@@ -26,7 +26,7 @@ export const uploadingPhotoBook = async (
     uploadResult = await handleSingleUploadFile(req, res);
     const photo = await uploadResult.file.filename;
     bookServices.uploadingPhotoBook(photo);
-    res.status(201).json({
+    res.status(200).json({
       photo: `${config.server.baseUrl}/upload/${uploadResult.file.filename}`,
     });
   } catch (error) {
@@ -166,7 +166,6 @@ export const addComment = async (
     const user = await bookServices.addComment(req.body, req.user.id);
     res.status(201).json({
       comment: req.body.comment,
-      date: req.body.date,
       user: {
         fullName: user.fullName,
         photo: `${config.server.baseUrl}/upload/${user.photo}`,

@@ -90,7 +90,7 @@ const getBooks = async (
       field = "author.name";
       break;
     case "5":
-      field = "book.created_at";
+      field = "book.createdAt";
       break;
   }
   const minPrice =
@@ -296,7 +296,6 @@ const getBookRating = async () => {
 const addComment = async (
   data: {
     comment: string;
-    date: string;
     bookId: number;
   },
   userId: number,
@@ -305,7 +304,6 @@ const addComment = async (
     user: { id: userId },
     book: { id: data.bookId },
     text: data.comment,
-    data: new Date(data.date),
   });
   const user = await userRepository.findOne({ where: { id: userId } });
   const { fullName, photo } = user;
@@ -318,12 +316,15 @@ const getComment = async (bookId: string) => {
     relations: {
       user: true,
     },
+    order: {
+      createdAt: "ASC",
+    },
   });
-  return comments.map(({ text, data, user }) => {
+  return comments.map(({ text, createdAt, user }) => {
     const { fullName, photo } = user;
     return {
       comment: text,
-      date: data,
+      date: createdAt,
       user: {
         fullName: fullName,
         photo: `${config.server.baseUrl}/upload/${photo}`,
