@@ -1,6 +1,7 @@
 import { UserEntity } from "src/db/entities/user.entity";
 import { userRepository } from "../repository/userRepository";
 import { jwtVerifyToken } from "../utils/utilsToken";
+import { CustomError } from "../utils/errorHandler";
 
 export const authenticateToken = async (req, res, next) => {
   try {
@@ -11,7 +12,7 @@ export const authenticateToken = async (req, res, next) => {
     const id = userDataToken.id;
     const userData = await userRepository.findOneBy({ id });
     if (!userData) {
-      //throw new Error
+      throw new CustomError("Email already exists", 404);
     }
     req.user = userData as Partial<UserEntity>;
     next();

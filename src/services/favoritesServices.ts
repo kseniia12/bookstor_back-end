@@ -1,10 +1,12 @@
-import { IAddFavorites } from "../lib/types";
+import { IDataForAddFavoritesBook } from "../lib/types";
 import {
   favoritesRepository,
   ratingRepository,
 } from "../repository/bookRepository";
 
-const addBookInFavorites = async (dataForAddFavoritesBook: IAddFavorites) => {
+const addBookInFavorites = async (
+  dataForAddFavoritesBook: IDataForAddFavoritesBook,
+) => {
   const { userId, bookData } = dataForAddFavoritesBook;
   const favorites = await favoritesRepository.find({
     where: {

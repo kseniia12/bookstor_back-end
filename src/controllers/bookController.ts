@@ -42,7 +42,7 @@ export const getBooks = async (
   try {
     const price = await bookServices.getPriceBooks();
     const book = await bookServices.getBooks(req.query, price);
-    res.status(201).json({ book, price });
+    res.status(200).json({ book, price });
   } catch (error) {
     next(error);
   }
@@ -55,7 +55,7 @@ export const getGenresBooks = async (
 ): Promise<any> => {
   try {
     const filter = await bookServices.getGenresBooks();
-    res.status(201).json({ filter });
+    res.status(200).json({ filter });
   } catch (error) {
     next(error);
   }
@@ -109,7 +109,7 @@ export const getBookFromCart = async (
   try {
     const userId = req.user.id;
     const book = await bookServices.getBookFromCart(userId);
-    res.status(201).json(book);
+    res.status(200).json(book);
   } catch (error) {
     next(error);
   }
@@ -123,7 +123,7 @@ export const getBookRecommendation = async (
   try {
     const bookId = req.query.bookId as string;
     const book = await bookServices.getBookRecommendation(bookId);
-    res.status(201).json({ book });
+    res.status(200).json({ book });
   } catch (error) {
     next(error);
   }
@@ -151,7 +151,7 @@ export const getBookRating = async (
 ): Promise<void> => {
   try {
     const rate = await bookServices.getBookRating();
-    res.status(201).json(rate);
+    res.status(200).json(rate);
   } catch (error) {
     next(error);
   }
@@ -185,7 +185,7 @@ export const getComment = async (
   try {
     const bookId = req.query.bookId as string;
     const book = await bookServices.getComment(bookId);
-    res.status(201).json(book);
+    res.status(200).json(book);
   } catch (error) {
     next(error);
   }

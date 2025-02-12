@@ -1,33 +1,3 @@
-export interface genreObject {
-  name: string;
-}
-
-export interface genreAndBookObject {
-  bookId: number;
-  genreId: number;
-}
-
-export interface authorAndBookObject {
-  bookId: number;
-  authorId: number;
-}
-
-export interface cartObject {
-  bookId: number;
-  count: number;
-}
-
-export interface IUploadedFile {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  destination: string;
-  filename: string;
-  path: string;
-  size: number;
-}
-
 export interface IUserDataForLogin {
   email: string;
   password: string;
@@ -46,22 +16,20 @@ export interface IEditUserById {
   };
 }
 
-export interface IAddFavorites {
+export interface IDataForAddFavoritesBook {
   userId: number;
-  bookData: authorAndBookObject;
+  bookData: {
+    bookId: number;
+    authorId: number;
+  };
 }
 
-export interface IFilterBook {
+export interface IDataForFilteringBooks {
   page?: string;
   filter?: string[];
   maxPrice?: string;
   minPrice?: string;
   sort?: string;
-}
-
-export interface IPrice {
-  minValue: number;
-  maxValue: number;
 }
 
 export interface IRateBook {

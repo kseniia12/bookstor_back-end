@@ -17,7 +17,7 @@ const createUser = async (userData: Partial<UserEntity>) => {
     where: { email: userData.email },
   });
   if (existingUser) {
-    throw new CustomError("Email already exists", 404);
+    throw new CustomError("Email already exists", 400);
   }
   const hashedPassword = hashPassword(userData.password);
   const newUser = userRepository.create({
@@ -35,7 +35,7 @@ const loginUser = async (userData: IUserDataForLogin) => {
   }
   const passwordUser = verifyPassword(password, user.password);
   if (!passwordUser) {
-    throw new CustomError("Invalid password", 401);
+    throw new CustomError("Invalid password", 400);
   }
   return user;
 };

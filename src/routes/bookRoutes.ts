@@ -26,7 +26,7 @@ bookRouter.get("/filter", getGenresBooks);
 bookRouter.post("/author", createAuthor);
 bookRouter.post("/cart", authenticateToken, addBookToCart);
 bookRouter.get("/cart", authenticateToken, getBookFromCart);
-bookRouter.delete("/cart", authenticateToken, getBookFromCart);
+// bookRouter.delete("/cart", authenticateToken, getBookFromCart);
 bookRouter.get("/recommendations", getBookRecommendation);
 bookRouter.patch("/rating", authenticateToken, rateBook);
 bookRouter.get("/rating", getBookRating);

@@ -27,7 +27,7 @@ export const getBookInFavorites = async (
   try {
     const idUser = req.user;
     const book = await favoritesServicse.getBookInFavorites(idUser);
-    res.status(201).json(book);
+    res.status(200).json(book);
   } catch (error) {
     next(error);
   }

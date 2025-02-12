@@ -1,12 +1,6 @@
 import * as dotenv from "dotenv";
 import config from "../config/config";
-import {
-  cartObject,
-  genreObject,
-  IFilterBook,
-  IPrice,
-  IRateBook,
-} from "../lib/types";
+import { IDataForFilteringBooks, IRateBook } from "../lib/types";
 import {
   authorRepository,
   bookRepository,
@@ -57,7 +51,13 @@ const getPriceBooks = async () => {
   return price;
 };
 
-const getBooks = async (filter: IFilterBook, price: IPrice) => {
+const getBooks = async (
+  filter: IDataForFilteringBooks,
+  price: {
+    minValue: number;
+    maxValue: number;
+  },
+) => {
   const limit = 12;
   const page = filter.page || 1;
   const filters = filter.filter;
@@ -80,17 +80,24 @@ const getBooks = async (filter: IFilterBook, price: IPrice) => {
       .setParameters(subQuery.getParameters());
   }
   switch (sort) {
+    case "1":
+      field = "book.priceHard";
+      break;
     case "2":
       field = "book.name";
       break;
     case "3":
       field = "author.name";
       break;
+    case "5":
+      field = "book.created_at";
+      break;
   }
   const minPrice =
     filter.minPrice == undefined ? price.minValue : filter.minPrice;
   const maxPrice =
     filter.maxPrice == undefined ? price.maxValue : filter.maxPrice;
+
   const booksArray = await queryBuilder
     .orderBy(field, "ASC")
     .andWhere("book.priceHard > :minPrice", { minPrice })
@@ -118,6 +125,11 @@ const getBooks = async (filter: IFilterBook, price: IPrice) => {
       : 0;
     return { ...book, averageRating };
   });
+
+  if (sort === "4") {
+    booksWithAverageRating.sort((a, b) => b.averageRating - a.averageRating);
+  }
+
   return booksWithAverageRating;
 };
 
@@ -125,21 +137,27 @@ const getGenresBooks = async () => {
   return genreRepository.find();
 };
 
-const createGenres = async (bookData: genreObject) => {
+const createGenres = async (bookData: { name: string }) => {
   const newGenres = genreRepository.create({
     name: bookData.name,
   });
   return genreRepository.save(newGenres);
 };
 
-const createAuthor = async (bookData: genreObject) => {
+const createAuthor = async (bookData: { name: string }) => {
   const author = authorRepository.create({
     name: bookData.name,
   });
   return authorRepository.save(author);
 };
 
-const addBookToCart = async (userId: number, bookData: cartObject) => {
+const addBookToCart = async (
+  userId: number,
+  bookData: {
+    bookId: number;
+    count: number;
+  },
+) => {
   await cartRepository.save({
     user: { id: userId },
     book: { id: bookData.bookId },
