@@ -1,29 +1,32 @@
 import type { NextFunction, Request, Response } from "express";
-import {
-  deleteBookFromCartServices,
-  patchBookFromCartServices,
-} from "../services/cartServices";
+import cartServices from "../services/cartServices";
 
-export const deleteBookFromCartController = async (
+export const deleteBookFromCart = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await deleteBookFromCartServices(req.body.id, req.user.id);
+    const book = await cartServices.deleteBookFromCart(
+      req.body.id,
+      req.user.id,
+    );
     res.status(201).json(book);
   } catch (error) {
     next(error);
   }
 };
 
-export const patchCountBookController = async (
+export const changeCountBooksInCart = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await patchBookFromCartServices(req.user.id, req.body);
+    const book = await cartServices.changeCountBooksInCart(
+      req.user.id,
+      req.body,
+    );
     res.status(201).json(book);
   } catch (error) {
     next(error);

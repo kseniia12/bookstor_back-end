@@ -1,16 +1,12 @@
 import * as dotenv from "dotenv";
 import config from "../config/config";
-
 import {
-  authorAndBookObject,
-  bookObject,
   cartObject,
-  genreAndBookObject,
   genreObject,
   IFilterBook,
   IPrice,
   IRateBook,
-} from "../lib/componets";
+} from "../lib/types";
 import {
   authorRepository,
   bookRepository,
@@ -22,11 +18,12 @@ import {
 } from "../repository/bookRepository";
 import { userRepository } from "../repository/userRepository";
 import { In, Not } from "typeorm";
+import { BookEntity } from "../db/entities/book.entity";
 
 dotenv.config();
 
-export const createBookServices = async (bookData: bookObject) => {
-  return bookRepository.save({
+const createBook = async (bookData: Partial<BookEntity>) => {
+  const book = await bookRepository.save({
     name: bookData.name,
     priceSoft: bookData.priceSoft,
     priceHard: bookData.priceHard,
@@ -34,16 +31,24 @@ export const createBookServices = async (bookData: bookObject) => {
     countHard: bookData.countHard,
     countSoft: bookData.countSoft,
     cover: bookData.cover,
+    author: bookData.author,
+    bestseller: bookData.bestseller,
   });
+  const connections = {
+    book: book,
+    genre: bookData.genres[0],
+  };
+  await сonnectionBookAndGenresRepository.save(connections);
+  return book;
 };
 
-export const createBookPhoto = async (photo: string) => {
+const uploadingPhotoBook = async (photo: string) => {
   const book = await bookRepository.findOne({ where: { id: 42 } });
   book.cover = photo;
   return bookRepository.save(book);
 };
 
-export const getPriceBooks = async () => {
+const getPriceBooks = async () => {
   const price = await bookRepository
     .createQueryBuilder("price")
     .select("MAX(price.priceHard)", "maxValue")
@@ -52,20 +57,15 @@ export const getPriceBooks = async () => {
   return price;
 };
 
-export const paginationBookService = async (
-  filter: IFilterBook,
-  price: IPrice,
-) => {
+const getBooks = async (filter: IFilterBook, price: IPrice) => {
   const limit = 12;
   const page = filter.page || 1;
   const filters = filter.filter;
   const sort = filter.sort;
   let field = "book.priceHard";
-
   const queryBuilder = bookRepository
     .createQueryBuilder("book")
     .leftJoinAndSelect("book.author", "author");
-
   if (filters && filters.length > 0) {
     const subQuery = сonnectionBookAndGenresRepository
       .createQueryBuilder("connection")
@@ -75,12 +75,10 @@ export const paginationBookService = async (
       .having("COUNT(connection.genreId) = :filterCount", {
         filterCount: filters.length,
       });
-
     queryBuilder
       .where("book.id IN (" + subQuery.getQuery() + ")")
       .setParameters(subQuery.getParameters());
   }
-
   switch (sort) {
     case "2":
       field = "book.name";
@@ -89,12 +87,10 @@ export const paginationBookService = async (
       field = "author.name";
       break;
   }
-
   const minPrice =
     filter.minPrice == undefined ? price.minValue : filter.minPrice;
   const maxPrice =
     filter.maxPrice == undefined ? price.maxValue : filter.maxPrice;
-
   const booksArray = await queryBuilder
     .orderBy(field, "ASC")
     .andWhere("book.priceHard > :minPrice", { minPrice })
@@ -102,14 +98,11 @@ export const paginationBookService = async (
     .skip(limit * (Number(page) - 1))
     .take(limit)
     .getMany();
-
   const ratings = await ratingRepository.find({
     where: { book: In(booksArray.map((book) => book.id)) },
     relations: ["book"],
   });
-
   const ratingSums: { [bookId: number]: { sum: number; count: number } } = {};
-
   ratings.forEach((rating) => {
     const bookId = rating.book.id;
     if (!ratingSums[bookId]) {
@@ -118,7 +111,6 @@ export const paginationBookService = async (
     ratingSums[bookId].sum += rating.rate;
     ratingSums[bookId].count += 1;
   });
-
   const booksWithAverageRating = booksArray.map((book) => {
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
@@ -126,64 +118,28 @@ export const paginationBookService = async (
       : 0;
     return { ...book, averageRating };
   });
-
   return booksWithAverageRating;
 };
 
-export const getFilterServices = async () => {
+const getGenresBooks = async () => {
   return genreRepository.find();
 };
 
-export const createGenresServices = async (bookData: genreObject) => {
+const createGenres = async (bookData: genreObject) => {
   const newGenres = genreRepository.create({
     name: bookData.name,
   });
   return genreRepository.save(newGenres);
 };
 
-export const connectingGenresBooksServices = async (
-  bookData: genreAndBookObject,
-) => {
-  const book = await bookRepository.findOne({ where: { id: bookData.bookId } });
-  const genre = await genreRepository.findOne({
-    where: { id: bookData.genreId },
-  });
-  if (!book || !genre) {
-    throw new Error("Book or Genre not found");
-  }
-  return сonnectionBookAndGenresRepository.save({
-    book: book,
-    genre: genre,
-  });
-};
-
-export const createAuthorServices = async (bookData: genreObject) => {
+const createAuthor = async (bookData: genreObject) => {
   const author = authorRepository.create({
     name: bookData.name,
   });
   return authorRepository.save(author);
 };
 
-export const connectingAuthorBooksServices = async (
-  bookData: authorAndBookObject,
-) => {
-  const book = await bookRepository.findOne({ where: { id: bookData.bookId } });
-  const author = await authorRepository.findOne({
-    where: { id: bookData.authorId },
-  });
-  if (!book || !author) {
-    throw new Error("Book or Genre not found");
-  }
-  return bookRepository.save({
-    ...book,
-    author: author,
-  });
-};
-
-export const addToCartServices = async (
-  userId: number,
-  bookData: cartObject,
-) => {
+const addBookToCart = async (userId: number, bookData: cartObject) => {
   await cartRepository.save({
     user: { id: userId },
     book: { id: bookData.bookId },
@@ -207,7 +163,7 @@ export const addToCartServices = async (
   return { book, totalPrice };
 };
 
-export const getBookFromCartServices = async (userId: number) => {
+const getBookFromCart = async (userId: number) => {
   const books = await cartRepository.find({
     where: { user: { id: userId } },
     relations: {
@@ -226,16 +182,14 @@ export const getBookFromCartServices = async (userId: number) => {
   return { book, totalPrice };
 };
 
-export const getReccomendationsBookServices = async (bookId: string) => {
+const getBookRecommendation = async (bookId: string) => {
   const genres = await сonnectionBookAndGenresRepository.find({
     where: { book: { id: Number(bookId) } },
     relations: {
       genre: true,
     },
   });
-
   const genreIds = genres.map((genre) => genre.genre.id);
-
   const recommendations = await сonnectionBookAndGenresRepository.find({
     take: 4,
     where: {
@@ -251,10 +205,8 @@ export const getReccomendationsBookServices = async (bookId: string) => {
   const recommendedBooks = recommendations.map(
     (recommendation) => recommendation.book,
   );
-
   const ratings = await ratingRepository.find({ relations: ["book"] });
   const ratingSums = {};
-
   ratings.forEach((rating) => {
     const bookId = rating.book.id;
     if (!ratingSums[bookId]) {
@@ -263,7 +215,6 @@ export const getReccomendationsBookServices = async (bookId: string) => {
     ratingSums[bookId].sum += rating.rate;
     ratingSums[bookId].count += 1;
   });
-
   const book = recommendedBooks.map((book) => {
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
@@ -274,12 +225,10 @@ export const getReccomendationsBookServices = async (bookId: string) => {
   return book;
 };
 
-export const rateBookServices = async (userId: number, bookData: IRateBook) => {
-  console.log(bookData);
+const rateBook = async (userId: number, bookData: IRateBook) => {
   const rate = await ratingRepository.findOne({
     where: { user: { id: userId }, book: { id: bookData.bookId } },
   });
-
   if (rate !== null) {
     rate.rate = bookData.rate;
     await ratingRepository.save(rate);
@@ -290,26 +239,22 @@ export const rateBookServices = async (userId: number, bookData: IRateBook) => {
       rate: bookData.rate,
     });
   }
-
   const bookIds = await ratingRepository.find({
     where: { user: { id: userId } },
     relations: {
       book: true,
     },
   });
-
   const ratingBook = bookIds.map((rating) => {
     return { bookId: rating.book.id, rate: rating.rate };
   });
-
   const user = await userRepository.findOneBy({ id: userId });
   return { user, ratingBook };
 };
 
-export const getrateBookServices = async () => {
+const getBookRating = async () => {
   const ratings = await ratingRepository.find({ relations: ["book"] });
   const ratingSums: { [bookId: number]: { sum: number; count: number } } = {};
-
   ratings.forEach((rating) => {
     const bookId = rating.book.id;
     if (!ratingSums[bookId]) {
@@ -318,9 +263,7 @@ export const getrateBookServices = async () => {
     ratingSums[bookId].sum += rating.rate;
     ratingSums[bookId].count += 1;
   });
-
   const books = await bookRepository.find();
-
   const booksWithAverageRating = books.map((book) => {
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
@@ -332,7 +275,7 @@ export const getrateBookServices = async () => {
   return booksWithAverageRating;
 };
 
-export const addCommentServices = async (
+const addComment = async (
   data: {
     comment: string;
     date: string;
@@ -351,14 +294,13 @@ export const addCommentServices = async (
   return { fullName, photo };
 };
 
-export const getCommentServices = async (bookId: string) => {
+const getComment = async (bookId: string) => {
   const comments = await commentsRepository.find({
     where: { book: { id: Number(bookId) } },
     relations: {
       user: true,
     },
   });
-
   return comments.map(({ text, data, user }) => {
     const { fullName, photo } = user;
     return {
@@ -366,8 +308,25 @@ export const getCommentServices = async (bookId: string) => {
       date: data,
       user: {
         fullName: fullName,
-        photo: `${config.local.hosh}/upload/${photo}`,
+        photo: `${config.server.baseUrl}/upload/${photo}`,
       },
     };
   });
+};
+
+export default {
+  getPriceBooks,
+  createAuthor,
+  getBookFromCart,
+  addBookToCart,
+  getGenresBooks,
+  getBooks,
+  uploadingPhotoBook,
+  createBook,
+  createGenres,
+  getBookRecommendation,
+  rateBook,
+  getBookRating,
+  addComment,
+  getComment,
 };

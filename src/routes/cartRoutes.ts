@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { authenticateToken } from "../middlewares/authMiddleware";
 import {
-  deleteBookFromCartController,
-  patchCountBookController,
+  deleteBookFromCart,
+  changeCountBooksInCart,
 } from "../controllers/cartController";
 
 export const cartRouter = Router();
 
-cartRouter.delete("/delete", authenticateToken, deleteBookFromCartController);
-cartRouter.patch("/delete", authenticateToken, patchCountBookController);
+cartRouter.delete("/delete", authenticateToken, deleteBookFromCart);
+cartRouter.patch("/delete", authenticateToken, changeCountBooksInCart);

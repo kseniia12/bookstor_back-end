@@ -1,31 +1,3 @@
-export interface responseObjectTodo {
-  id?: number;
-  text?: string;
-  completed?: boolean;
-  valueInputField?: string;
-  key?: number;
-}
-
-export interface userObject {
-  fullName?: string;
-  email?: string;
-  password?: string;
-  dob?: string;
-  photo?: string;
-  newPassword?: string;
-}
-
-export interface bookObject {
-  name: string;
-  priceSoft: number;
-  priceHard: number;
-  description: string;
-  countHard: number;
-  countSoft: number;
-  bestseller: boolean;
-  cover: string;
-}
-
 export interface genreObject {
   name: string;
 }
@@ -56,18 +28,6 @@ export interface IUploadedFile {
   size: number;
 }
 
-export interface Book {
-  id: number;
-  name: string;
-  priceSoft: number;
-  priceHard: number;
-  description: string;
-  cover: string;
-  countHard: number;
-  countSoft: number;
-  bestseller: boolean;
-}
-
 export interface IUserDataForLogin {
   email: string;
   password: string;
@@ -80,7 +40,10 @@ export interface ICreateUsersPhoto {
 
 export interface IEditUserById {
   id: number;
-  userData: userObject;
+  userData: {
+    password: string;
+    newPassword: string;
+  };
 }
 
 export interface IAddFavorites {

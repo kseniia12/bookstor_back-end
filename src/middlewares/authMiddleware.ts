@@ -10,10 +10,11 @@ export const authenticateToken = async (req, res, next) => {
     const userDataToken = await jwtVerifyToken(token);
     const id = userDataToken.id;
     const userData = await userRepository.findOneBy({ id });
-    if (userData) {
-      req.user = userData as Partial<UserEntity>;
-      next();
+    if (!userData) {
+      //throw new Error
     }
+    req.user = userData as Partial<UserEntity>;
+    next();
   } catch (err) {
     res.status(403).json({ err: err.message });
   }

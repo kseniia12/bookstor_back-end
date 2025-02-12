@@ -1,31 +1,15 @@
 import type { NextFunction, Request, Response } from "express";
-import {
-  addCommentServices,
-  addToCartServices,
-  connectingAuthorBooksServices,
-  connectingGenresBooksServices,
-  createAuthorServices,
-  createBookPhoto,
-  createBookServices,
-  createGenresServices,
-  getBookFromCartServices,
-  getCommentServices,
-  getFilterServices,
-  getPriceBooks,
-  getrateBookServices,
-  getReccomendationsBookServices,
-  paginationBookService,
-  rateBookServices,
-} from "../services/bookServices";
+import config from "../config/config";
+import bookServices from "../services/bookServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
 
-export const createBookController = async (
+export const createBook = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await createBookServices(req.body);
+    const book = await bookServices.createBook(req.body);
     res.status(201).json({ book });
   } catch (error) {
     next(error);
@@ -41,143 +25,117 @@ export const uploadingPhotoBook = async (
   try {
     uploadResult = await handleSingleUploadFile(req, res);
     const photo = await uploadResult.file.filename;
-    createBookPhoto(photo);
+    bookServices.uploadingPhotoBook(photo);
     res.status(201).json({
-      photo: `${process.env.LOCALAPIURL}/upload/${uploadResult.file.filename}`,
+      photo: `${config.server.baseUrl}/upload/${uploadResult.file.filename}`,
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const getPaginationBook = async (
+export const getBooks = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   try {
-    const price = await getPriceBooks();
-    const book = await paginationBookService(req.query, price);
+    const price = await bookServices.getPriceBooks();
+    const book = await bookServices.getBooks(req.query, price);
     res.status(201).json({ book, price });
   } catch (error) {
     next(error);
   }
 };
 
-export const getFilter = async (
+export const getGenresBooks = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   try {
-    const filter = await getFilterServices();
+    const filter = await bookServices.getGenresBooks();
     res.status(201).json({ filter });
   } catch (error) {
     next(error);
   }
 };
 
-export const createGenresController = async (
+export const createGenres = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await createGenresServices(req.body);
+    const book = await bookServices.createGenres(req.body);
     res.status(201).json({ book });
   } catch (error) {
     next(error);
   }
 };
 
-export const connectingGenresBooksController = async (
+export const createAuthor = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await connectingGenresBooksServices(req.body);
+    const book = await bookServices.createAuthor(req.body);
     res.status(201).json({ book });
   } catch (error) {
     next(error);
   }
 };
 
-export const createAuthorController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    const book = await createAuthorServices(req.body);
-    res.status(201).json({ book });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const connectingAuthorBooksController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    const book = await connectingAuthorBooksServices(req.body);
-    res.status(201).json({ book });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const addToCartController = async (
+export const addBookToCart = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user.id;
-    const book = await addToCartServices(userId, req.body);
+    const book = await bookServices.addBookToCart(userId, req.body);
     res.status(201).json(book);
   } catch (error) {
     next(error);
   }
 };
 
-export const getBookFromCartController = async (
+export const getBookFromCart = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user.id;
-    const book = await getBookFromCartServices(userId);
+    const book = await bookServices.getBookFromCart(userId);
     res.status(201).json(book);
   } catch (error) {
     next(error);
   }
 };
 
-export const getReccomendationsBookController = async (
+export const getBookRecommendation = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
     const bookId = req.query.bookId as string;
-    const book = await getReccomendationsBookServices(bookId);
+    const book = await bookServices.getBookRecommendation(bookId);
     res.status(201).json({ book });
   } catch (error) {
     next(error);
   }
 };
 
-export const rateBookController = async (
+export const rateBook = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const rate = await rateBookServices(req.user.id, req.body);
+    const rate = await bookServices.rateBook(req.user.id, req.body);
     const user = rate.user;
     const ratingBook = rate.ratingBook;
     res.json({ user, ratingBook });
@@ -186,32 +144,32 @@ export const rateBookController = async (
   }
 };
 
-export const getrateBookController = async (
+export const getBookRating = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const rate = await getrateBookServices();
+    const rate = await bookServices.getBookRating();
     res.status(201).json(rate);
   } catch (error) {
     next(error);
   }
 };
 
-export const addCommentController = async (
+export const addComment = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const user = await addCommentServices(req.body, req.user.id);
+    const user = await bookServices.addComment(req.body, req.user.id);
     res.status(201).json({
       comment: req.body.comment,
       date: req.body.date,
       user: {
         fullName: user.fullName,
-        photo: `http://localhost:4000/upload/${user.photo}`,
+        photo: `${config.server.baseUrl}/upload/${user.photo}`,
       },
     });
   } catch (error) {
@@ -219,14 +177,14 @@ export const addCommentController = async (
   }
 };
 
-export const getCommentController = async (
+export const getComment = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
     const bookId = req.query.bookId as string;
-    const book = await getCommentServices(bookId);
+    const book = await bookServices.getComment(bookId);
     res.status(201).json(book);
   } catch (error) {
     next(error);

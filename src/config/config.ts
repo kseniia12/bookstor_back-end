@@ -10,12 +10,10 @@ const config = {
   },
   server: {
     port: Number(process.env.PORT),
+    baseUrl: process.env.BASE_URL,
   },
   token: {
     secret: process.env.TOKEN_SECRET,
-  },
-  local: {
-    hosh: process.env.LOCALAPIURL,
   },
 };
 

@@ -1,12 +1,12 @@
 import { Router } from "express";
 
 import {
-  addToFavoritesController,
-  getBookFromFavoritesController,
+  addBookInFavorites,
+  getBookInFavorites,
 } from "../controllers/favoritesController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 
 export const favoritesRouter = Router();
 
-favoritesRouter.post("/add", authenticateToken, addToFavoritesController);
-favoritesRouter.get("/add", authenticateToken, getBookFromFavoritesController);
+favoritesRouter.post("/add", authenticateToken, addBookInFavorites);
+favoritesRouter.get("/add", authenticateToken, getBookInFavorites);

@@ -5,14 +5,14 @@ import {
   ICreateUsersPhoto,
   IEditUserById,
   IUserDataForLogin,
-  userObject,
-} from "../lib/componets";
+} from "../lib/types";
 import { CustomError } from "../utils/errorHandler";
 import { ratingRepository } from "../repository/bookRepository";
+import { UserEntity } from "../db/entities/user.entity";
 
 dotenv.config();
 
-export const createUsersServices = async (userData: userObject) => {
+const createUser = async (userData: Partial<UserEntity>) => {
   const existingUser = await userRepository.findOne({
     where: { email: userData.email },
   });
@@ -27,7 +27,7 @@ export const createUsersServices = async (userData: userObject) => {
   return userRepository.save(newUser);
 };
 
-export const loginUsersServices = async (userData: IUserDataForLogin) => {
+const loginUser = async (userData: IUserDataForLogin) => {
   const { email, password } = userData;
   const user = await userRepository.findOne({ where: { email } });
   if (!user) {
@@ -40,16 +40,13 @@ export const loginUsersServices = async (userData: IUserDataForLogin) => {
   return user;
 };
 
-export const createUsersPhoto = async (userData: ICreateUsersPhoto) => {
+const uploadingPhoto = async (userData: ICreateUsersPhoto) => {
   const user = await userRepository.findOne({ where: { id: userData.userId } });
-  if (!user) {
-    throw new CustomError("Not fot found", 400);
-  }
   user.photo = userData.photo;
   return userRepository.save(user);
 };
 
-export const getUsersByIdServices = async (id: number) => {
+const getUserById = async (id: number) => {
   const bookIds = await ratingRepository.find({
     where: { user: { id: id } },
     relations: {
@@ -63,13 +60,13 @@ export const getUsersByIdServices = async (id: number) => {
   return { user, ratingBook };
 };
 
-export const editUsersByIdServices = async (userInfo: IEditUserById) => {
+const editUserById = async (userInfo: IEditUserById) => {
   const { id, userData } = userInfo;
   const user = await userRepository.findOneBy({ id });
   return userRepository.save({ ...user, ...userData });
 };
 
-export const editPasswordServices = async (userInfo: IEditUserById) => {
+const editPassword = async (userInfo: IEditUserById) => {
   const { id, userData } = userInfo;
   const user = await userRepository.findOneBy({ id });
   const oldPasswordhashedPassword = hashPassword(userData.password);
@@ -80,4 +77,13 @@ export const editPasswordServices = async (userInfo: IEditUserById) => {
     user.password = newPasswordhashedPassword;
     return userRepository.save(user);
   }
+};
+
+export default {
+  createUser,
+  loginUser,
+  uploadingPhoto,
+  getUserById,
+  editUserById,
+  editPassword,
 };
