@@ -37,7 +37,58 @@ const changeCountBooksInCart = async (
   return { book, totalPrice };
 };
 
+const addBookToCart = async (
+  userId: number,
+  bookData: {
+    bookId: number;
+    count: number;
+  },
+) => {
+  await cartRepository.save({
+    user: { id: userId },
+    book: { id: bookData.bookId },
+    count: bookData.count || 1,
+  });
+  const books = await cartRepository.find({
+    where: { user: { id: userId } },
+    relations: {
+      book: {
+        author: true,
+      },
+    },
+  });
+  const totalPrice = books.reduce((acc, cartItem) => {
+    return acc + cartItem.book.priceHard * cartItem.count;
+  }, 0);
+  const book = books.map((k) => {
+    const { book, count } = k;
+    return { ...book, count };
+  });
+  return { book, totalPrice };
+};
+
+const getBookFromCart = async (userId: number) => {
+  const books = await cartRepository.find({
+    where: { user: { id: userId } },
+    relations: {
+      book: {
+        author: true,
+      },
+    },
+  });
+  const totalPrice = books.reduce((acc, cartItem) => {
+    return acc + cartItem.book.priceHard * cartItem.count;
+  }, 0);
+  const book = books.map((k) => {
+    const { book, count } = k;
+    return { ...book, count };
+  });
+  return { book, totalPrice };
+};
+
 export default {
   deleteBookFromCart,
   changeCountBooksInCart,
+  addBookToCart,
+  getBookFromCart,
 };

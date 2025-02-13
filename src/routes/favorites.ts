@@ -8,5 +8,5 @@ import { authenticateToken } from "../middlewares/authMiddleware";
 
 export const favoritesRouter = Router();
 
-favoritesRouter.post("/add", authenticateToken, addBookInFavorites);
-favoritesRouter.get("/add", authenticateToken, getBookInFavorites);
+favoritesRouter.post("/", authenticateToken, addBookInFavorites);
+favoritesRouter.get("/", authenticateToken, getBookInFavorites);

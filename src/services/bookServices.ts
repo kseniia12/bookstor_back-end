@@ -1,11 +1,8 @@
 import * as dotenv from "dotenv";
-import config from "../config/config";
 import { IDataForFilteringBooks, IRateBook } from "../lib/types";
 import {
   authorRepository,
   bookRepository,
-  cartRepository,
-  commentsRepository,
   genreRepository,
   ratingRepository,
   сonnectionBookAndGenresRepository,
@@ -151,55 +148,6 @@ const createAuthor = async (bookData: { name: string }) => {
   return authorRepository.save(author);
 };
 
-const addBookToCart = async (
-  userId: number,
-  bookData: {
-    bookId: number;
-    count: number;
-  },
-) => {
-  await cartRepository.save({
-    user: { id: userId },
-    book: { id: bookData.bookId },
-    count: bookData.count || 1,
-  });
-  const books = await cartRepository.find({
-    where: { user: { id: userId } },
-    relations: {
-      book: {
-        author: true,
-      },
-    },
-  });
-  const totalPrice = books.reduce((acc, cartItem) => {
-    return acc + cartItem.book.priceHard * cartItem.count;
-  }, 0);
-  const book = books.map((k) => {
-    const { book, count } = k;
-    return { ...book, count };
-  });
-  return { book, totalPrice };
-};
-
-const getBookFromCart = async (userId: number) => {
-  const books = await cartRepository.find({
-    where: { user: { id: userId } },
-    relations: {
-      book: {
-        author: true,
-      },
-    },
-  });
-  const totalPrice = books.reduce((acc, cartItem) => {
-    return acc + cartItem.book.priceHard * cartItem.count;
-  }, 0);
-  const book = books.map((k) => {
-    const { book, count } = k;
-    return { ...book, count };
-  });
-  return { book, totalPrice };
-};
-
 const getBookRecommendation = async (bookId: string) => {
   const genres = await сonnectionBookAndGenresRepository.find({
     where: { book: { id: Number(bookId) } },
@@ -293,51 +241,9 @@ const getBookRating = async () => {
   return booksWithAverageRating;
 };
 
-const addComment = async (
-  data: {
-    comment: string;
-    bookId: number;
-  },
-  userId: number,
-) => {
-  await commentsRepository.save({
-    user: { id: userId },
-    book: { id: data.bookId },
-    text: data.comment,
-  });
-  const user = await userRepository.findOne({ where: { id: userId } });
-  const { fullName, photo } = user;
-  return { fullName, photo };
-};
-
-const getComment = async (bookId: string) => {
-  const comments = await commentsRepository.find({
-    where: { book: { id: Number(bookId) } },
-    relations: {
-      user: true,
-    },
-    order: {
-      createdAt: "ASC",
-    },
-  });
-  return comments.map(({ text, createdAt, user }) => {
-    const { fullName, photo } = user;
-    return {
-      comment: text,
-      date: createdAt,
-      user: {
-        fullName: fullName,
-        photo: `${config.server.baseUrl}/upload/${photo}`,
-      },
-    };
-  });
-};
-
 export default {
   getPriceBooks,
   createAuthor,
-  getBookFromCart,
-  addBookToCart,
   getGenresBooks,
   getBooks,
   uploadingPhotoBook,
@@ -346,6 +252,4 @@ export default {
   getBookRecommendation,
   rateBook,
   getBookRating,
-  addComment,
-  getComment,
 };

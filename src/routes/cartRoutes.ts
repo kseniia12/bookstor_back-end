@@ -3,9 +3,15 @@ import { authenticateToken } from "../middlewares/authMiddleware";
 import {
   deleteBookFromCart,
   changeCountBooksInCart,
+  addBookToCart,
+  getBookFromCart,
 } from "../controllers/cartController";
 
 export const cartRouter = Router();
 
-cartRouter.delete("/delete", authenticateToken, deleteBookFromCart);
-cartRouter.patch("/delete", authenticateToken, changeCountBooksInCart);
+cartRouter.use(authenticateToken);
+
+cartRouter.delete("/", deleteBookFromCart);
+cartRouter.patch("/", changeCountBooksInCart);
+cartRouter.post("/", addBookToCart);
+cartRouter.get("/", getBookFromCart);

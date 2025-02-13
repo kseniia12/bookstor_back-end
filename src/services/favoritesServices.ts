@@ -1,8 +1,5 @@
 import { IDataForAddFavoritesBook } from "../lib/types";
-import {
-  favoritesRepository,
-  ratingRepository,
-} from "../repository/bookRepository";
+import { favoritesRepository } from "../repository/bookRepository";
 
 const addBookInFavorites = async (
   dataForAddFavoritesBook: IDataForAddFavoritesBook,
@@ -45,39 +42,41 @@ const addBookInFavorites = async (
   return { book };
 };
 
-const getBookInFavorites = async (userId: { id: number }) => {
-  const favorites = await favoritesRepository.find({
-    where: { user: userId },
+const getBookInFavorites = async (userId: number) => {
+  const favoritesBooks = await favoritesRepository.find({
+    where: { user: { id: userId } },
     relations: {
       book: {
         author: true,
       },
     },
   });
-
-  const favoriteBooks = favorites.map((favorite) => favorite.book);
-
-  // Fetch ratings for all books
-  const ratings = await ratingRepository.find({ relations: ["book"] });
-  const ratingSums = {};
-
-  ratings.forEach((rating) => {
-    const bookId = rating.book.id;
-    if (!ratingSums[bookId]) {
-      ratingSums[bookId] = { sum: 0, count: 0 };
-    }
-    ratingSums[bookId].sum += rating.rate;
-    ratingSums[bookId].count += 1;
+  const book = favoritesBooks.map((favorite) => {
+    const { book } = favorite;
+    return book;
   });
+  return { book };
+  // const favoriteBooks = favorites.map((favorite) => favorite.book);
 
-  // Attach average ratings to favorite books
-  const book = favoriteBooks.map((book) => {
-    const ratingSum = ratingSums[book.id];
-    const averageRating = ratingSum
-      ? Math.ceil(ratingSum.sum / ratingSum.count)
-      : 0;
-    return { ...book, averageRating };
-  });
+  // const ratings = await ratingRepository.find({ relations: ["book"] });
+  // const ratingSums = {};
+
+  // ratings.forEach((rating) => {
+  //   const bookId = rating.book.id;
+  //   if (!ratingSums[bookId]) {
+  //     ratingSums[bookId] = { sum: 0, count: 0 };
+  //   }
+  //   ratingSums[bookId].sum += rating.rate;
+  //   ratingSums[bookId].count += 1;
+  // });
+
+  // const book = favoriteBooks.map((book) => {
+  //   const ratingSum = ratingSums[book.id];
+  //   const averageRating = ratingSum
+  //     ? Math.ceil(ratingSum.sum / ratingSum.count)
+  //     : 0;
+  //   return { ...book, averageRating };
+  // });
   return { book };
 };
 
