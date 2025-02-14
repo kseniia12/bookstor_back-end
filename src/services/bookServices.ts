@@ -57,12 +57,13 @@ const getBooks = async (
 ) => {
   const limit = 12;
   const page = filter.page || 1;
-  const filters = filter.filter;
+  const filters = filter.genre;
   const sort = filter.sort;
   let field = "book.priceHard";
   const queryBuilder = bookRepository
     .createQueryBuilder("book")
     .leftJoinAndSelect("book.author", "author");
+
   if (filters && filters.length > 0) {
     const subQuery = сonnectionBookAndGenresRepository
       .createQueryBuilder("connection")
@@ -76,6 +77,7 @@ const getBooks = async (
       .where("book.id IN (" + subQuery.getQuery() + ")")
       .setParameters(subQuery.getParameters());
   }
+
   switch (sort) {
     case "1":
       field = "book.priceHard";
@@ -90,10 +92,11 @@ const getBooks = async (
       field = "book.createdAt";
       break;
   }
+
   const minPrice =
-    filter.minPrice == undefined ? price.minValue : filter.minPrice;
+    filter.minPrice === undefined ? price.minValue : filter.minPrice;
   const maxPrice =
-    filter.maxPrice == undefined ? price.maxValue : filter.maxPrice;
+    filter.maxPrice === undefined ? price.maxValue : filter.maxPrice;
 
   const booksArray = await queryBuilder
     .orderBy(field, "ASC")
@@ -102,10 +105,21 @@ const getBooks = async (
     .skip(limit * (Number(page) - 1))
     .take(limit)
     .getMany();
+
+  const totalBooks = await queryBuilder
+    .andWhere("book.priceHard > :minPrice", { minPrice })
+    .andWhere("book.priceHard < :maxPrice", { maxPrice })
+    .getCount();
+
+  const totalPages = Math.ceil(totalBooks / limit);
+  const hasNextPage = Number(page) < totalPages;
+  const hasPrevPage = Number(page) > 1;
+
   const ratings = await ratingRepository.find({
     where: { book: In(booksArray.map((book) => book.id)) },
     relations: ["book"],
   });
+
   const ratingSums: { [bookId: number]: { sum: number; count: number } } = {};
   ratings.forEach((rating) => {
     const bookId = rating.book.id;
@@ -115,19 +129,34 @@ const getBooks = async (
     ratingSums[bookId].sum += rating.rate;
     ratingSums[bookId].count += 1;
   });
+
   const booksWithAverageRating = booksArray.map((book) => {
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
-      ? Math.ceil(ratingSum.sum / ratingSum.count)
+      ? Math.round(ratingSum.sum / ratingSum.count)
       : 0;
-    return { ...book, averageRating };
+    return {
+      ...book,
+      averageRating,
+    };
   });
 
   if (sort === "4") {
     booksWithAverageRating.sort((a, b) => b.averageRating - a.averageRating);
   }
 
-  return booksWithAverageRating;
+  const meta = {
+    totalBooks,
+    totalPages,
+    currentPage: Number(filter.page),
+    hasNextPage,
+    hasPrevPage,
+  };
+
+  return {
+    book: booksWithAverageRating,
+    meta,
+  };
 };
 
 const getGenresBooks = async () => {

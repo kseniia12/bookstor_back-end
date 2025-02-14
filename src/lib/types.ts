@@ -26,7 +26,7 @@ export interface IDataForAddFavoritesBook {
 
 export interface IDataForFilteringBooks {
   page?: string;
-  filter?: string[];
+  genre?: string[];
   maxPrice?: string;
   minPrice?: string;
   sort?: string;

@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from "express";
-import config from "../config/config";
 import bookServices from "../services/bookServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
 
@@ -27,7 +26,7 @@ export const uploadingPhotoBook = async (
     const photo = await uploadResult.file.filename;
     bookServices.uploadingPhotoBook(photo);
     res.status(200).json({
-      photo: `${config.server.baseUrl}/upload/${uploadResult.file.filename}`,
+      photo: `${uploadResult.file.filename}`,
     });
   } catch (error) {
     next(error);
@@ -41,8 +40,9 @@ export const getBooks = async (
 ): Promise<any> => {
   try {
     const price = await bookServices.getPriceBooks();
-    const book = await bookServices.getBooks(req.query, price);
-    res.status(200).json({ book, price });
+    const books = await bookServices.getBooks(req.query, price);
+    const { book, meta } = books;
+    res.status(200).json({ book: book, price, meta: meta, filters: req.query });
   } catch (error) {
     next(error);
   }
