@@ -133,8 +133,8 @@ const getBooks = async (
   const booksWithAverageRating = booksArray.map((book) => {
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
-      ? Math.round(ratingSum.sum / ratingSum.count)
-      : 0;
+      ? (ratingSum.sum / ratingSum.count).toFixed(1)
+      : "0.0";
     return {
       ...book,
       averageRating,
@@ -142,7 +142,17 @@ const getBooks = async (
   });
 
   if (sort === "4") {
-    booksWithAverageRating.sort((a, b) => b.averageRating - a.averageRating);
+    booksWithAverageRating.sort((a, b) => {
+      const ratingA =
+        typeof a.averageRating === "number"
+          ? a.averageRating
+          : parseFloat(a.averageRating);
+      const ratingB =
+        typeof b.averageRating === "number"
+          ? b.averageRating
+          : parseFloat(b.averageRating);
+      return ratingB - ratingA;
+    });
   }
 
   const meta = {
@@ -213,8 +223,8 @@ const getBookRecommendation = async (bookId: string) => {
   const book = recommendedBooks.map((book) => {
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
-      ? Math.ceil(ratingSum.sum / ratingSum.count)
-      : 0;
+      ? (ratingSum.sum / ratingSum.count).toFixed(1)
+      : "0.0";
     return { ...book, averageRating };
   });
   return book;
@@ -262,11 +272,11 @@ const getBookRating = async () => {
   const booksWithAverageRating = books.map((book) => {
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
-      ? Math.ceil(ratingSum.sum / ratingSum.count)
-      : 0;
+      ? (ratingSum.sum / ratingSum.count).toFixed(1)
+      : "0.0";
     return { averageRating };
   });
-
+  console.log(booksWithAverageRating);
   return booksWithAverageRating;
 };
 
