@@ -11,6 +11,7 @@ export const addComment = async (
     const user = await commentServices.addComment(req.body, req.user.id);
     res.status(201).json({
       comment: req.body.comment,
+      date: req.body.date,
       user: {
         fullName: user.fullName,
         photo: `${config.server.baseUrl}/upload/${user.photo}`,

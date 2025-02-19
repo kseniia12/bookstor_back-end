@@ -10,7 +10,6 @@ import { RatingEntity } from "./rating.entity";
 import { CartItemEntity } from "./cart.entity";
 import { FavoritesEntity } from "./favorites.entity";
 import { CommentsEntity } from "./comments.entity";
-
 @Entity("user")
 export class UserEntity {
   @PrimaryGeneratedColumn()
@@ -25,7 +24,10 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Column({ nullable: true })
+  @Column({
+    nullable: true,
+    default: "1739961561390-99",
+  })
   photo: string;
 
   @OneToMany(() => RatingEntity, (rating) => rating.user)
