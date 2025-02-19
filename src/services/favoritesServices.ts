@@ -56,28 +56,6 @@ const getBookInFavorites = async (userId: number) => {
     return book;
   });
   return { book };
-  // const favoriteBooks = favorites.map((favorite) => favorite.book);
-
-  // const ratings = await ratingRepository.find({ relations: ["book"] });
-  // const ratingSums = {};
-
-  // ratings.forEach((rating) => {
-  //   const bookId = rating.book.id;
-  //   if (!ratingSums[bookId]) {
-  //     ratingSums[bookId] = { sum: 0, count: 0 };
-  //   }
-  //   ratingSums[bookId].sum += rating.rate;
-  //   ratingSums[bookId].count += 1;
-  // });
-
-  // const book = favoriteBooks.map((book) => {
-  //   const ratingSum = ratingSums[book.id];
-  //   const averageRating = ratingSum
-  //     ? Math.ceil(ratingSum.sum / ratingSum.count)
-  //     : 0;
-  //   return { ...book, averageRating };
-  // });
-  return { book };
 };
 
 export default {

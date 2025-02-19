@@ -42,6 +42,7 @@ export const getBooks = async (
     const price = await bookServices.getPriceBooks();
     const books = await bookServices.getBooks(req.query, price);
     const { book, meta } = books;
+
     res.status(200).json({ book: book, price, meta: meta, filters: req.query });
   } catch (error) {
     next(error);

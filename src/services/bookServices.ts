@@ -58,7 +58,7 @@ const getBooks = async (
   const limit = 12;
   const page = filter.page || 1;
   const filters = filter.genre;
-  const sort = filter.sort;
+  const sort = filter.sort || "price";
   let field = "book.priceHard";
   const queryBuilder = bookRepository
     .createQueryBuilder("book")
@@ -79,16 +79,16 @@ const getBooks = async (
   }
 
   switch (sort) {
-    case "1":
+    case "price":
       field = "book.priceHard";
       break;
-    case "2":
+    case "name":
       field = "book.name";
       break;
-    case "3":
+    case "author":
       field = "author.name";
       break;
-    case "5":
+    case "date":
       field = "book.createdAt";
       break;
   }
@@ -141,7 +141,7 @@ const getBooks = async (
     };
   });
 
-  if (sort === "4") {
+  if (sort === "rating") {
     booksWithAverageRating.sort((a, b) => {
       const ratingA =
         typeof a.averageRating === "number"
@@ -154,7 +154,6 @@ const getBooks = async (
       return ratingB - ratingA;
     });
   }
-
   const meta = {
     totalBooks,
     totalPages,
@@ -276,7 +275,7 @@ const getBookRating = async () => {
       : "0.0";
     return { averageRating };
   });
-  console.log(booksWithAverageRating);
+
   return booksWithAverageRating;
 };
 

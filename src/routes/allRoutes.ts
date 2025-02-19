@@ -3,7 +3,7 @@ import { Router } from "express";
 import { userRouter } from "./userRoutes";
 import { bookRouter } from "./bookRoutes";
 import { cartRouter } from "./cartRoutes";
-import { favoritesRouter } from "./favorites";
+import { favoritesRouter } from "./favoritesRoutes";
 import { commentRouter } from "./commentRoutes";
 
 const allRouter = Router();
