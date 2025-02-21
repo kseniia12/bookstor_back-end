@@ -96,12 +96,12 @@ export const getBookRecommendation = async (
   try {
     const bookId = req.query.bookId as string;
     const book = await bookServices.getBookRecommendation(bookId);
-    res.status(200).json({ book });
+    res.status(200).json(book);
   } catch (error) {
     next(error);
   }
 };
-
+/***** */
 export const rateBook = async (
   req: Request,
   res: Response,
@@ -109,14 +109,14 @@ export const rateBook = async (
 ): Promise<void> => {
   try {
     const rate = await bookServices.rateBook(req.user.id, req.body);
-    const user = rate.user;
+
     const ratingBook = rate.ratingBook;
-    res.json({ user, ratingBook });
+    res.json({ ratingBook });
   } catch (error) {
     next(error);
   }
 };
-
+/** */
 export const getBookRating = async (
   req: Request,
   res: Response,
@@ -125,6 +125,21 @@ export const getBookRating = async (
   try {
     const rate = await bookServices.getBookRating();
     res.status(200).json(rate);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getBookById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
+  try {
+    const bookId = req.query.bookId as string;
+    const book = await bookServices.getBookById(bookId);
+    console.log(book);
+    res.status(200).json(book);
   } catch (error) {
     next(error);
   }

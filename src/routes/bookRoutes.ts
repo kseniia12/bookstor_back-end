@@ -4,6 +4,7 @@ import {
   createAuthor,
   createBook,
   createGenres,
+  getBookById,
   getBookRating,
   getBookRecommendation,
   getBooks,
@@ -23,3 +24,4 @@ bookRouter.post("/author", createAuthor);
 bookRouter.get("/recommendations", getBookRecommendation);
 bookRouter.patch("/rating", authenticateToken, rateBook);
 bookRouter.get("/rating", getBookRating);
+bookRouter.get("/id", getBookById);

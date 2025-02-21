@@ -10,7 +10,7 @@ import {
 import { userRepository } from "../repository/userRepository";
 import { In, Not } from "typeorm";
 import { BookEntity } from "../db/entities/book.entity";
-
+import config from "../config/config";
 dotenv.config();
 
 const createBook = async (bookData: Partial<BookEntity>) => {
@@ -250,6 +250,7 @@ const rateBook = async (userId: number, bookData: IRateBook) => {
     },
   });
   const ratingBook = bookIds.map((rating) => {
+    //изменить имя (Boksretings)
     return { bookId: rating.book.id, rate: rating.rate };
   });
   const user = await userRepository.findOneBy({ id: userId });
@@ -279,6 +280,17 @@ const getBookRating = async () => {
   return booksWithAverageRating;
 };
 
+const getBookById = async (bookId: string) => {
+  const book = await bookRepository.find({
+    where: { id: Number(bookId) },
+    relations: {
+      author: true,
+    },
+  });
+  book[0].cover = `${config.server.baseUrl}/upload/${book[0].cover}`;
+  return book;
+};
+
 export default {
   getPriceBooks,
   createAuthor,
@@ -290,4 +302,5 @@ export default {
   getBookRecommendation,
   rateBook,
   getBookRating,
+  getBookById,
 };
