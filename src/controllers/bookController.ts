@@ -101,22 +101,20 @@ export const getBookRecommendation = async (
     next(error);
   }
 };
-/***** */
+
 export const rateBook = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const rate = await bookServices.rateBook(req.user.id, req.body);
-
-    const ratingBook = rate.ratingBook;
+    const ratingBook = await bookServices.rateBook(req.user.id, req.body);
     res.json({ ratingBook });
   } catch (error) {
     next(error);
   }
 };
-/** */
+
 export const getBookRating = async (
   req: Request,
   res: Response,
@@ -138,7 +136,6 @@ export const getBookById = async (
   try {
     const bookId = req.query.bookId as string;
     const book = await bookServices.getBookById(bookId);
-    console.log(book);
     res.status(200).json(book);
   } catch (error) {
     next(error);

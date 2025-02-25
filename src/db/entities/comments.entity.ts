@@ -11,24 +11,25 @@ import { UserEntity } from "./user.entity";
 
 @Entity("comments")
 export class CommentsEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    type: "int",
+  })
   id: number;
 
-  @Column()
+  @Column({
+    type: "varchar",
+  })
   text: string;
 
   @CreateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
   })
-  public createdAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-    onUpdate: "CURRENT_TIMESTAMP(6)",
   })
-  public updatedAt: Date;
+  updatedAt: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.comments)
   user: UserEntity;

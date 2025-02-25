@@ -5,9 +5,8 @@ import {
   bookRepository,
   genreRepository,
   ratingRepository,
-  сonnectionBookAndGenresRepository,
+  genresForBookRepository,
 } from "../repository/bookRepository";
-import { userRepository } from "../repository/userRepository";
 import { In, Not } from "typeorm";
 import { BookEntity } from "../db/entities/book.entity";
 import config from "../config/config";
@@ -29,7 +28,7 @@ const createBook = async (bookData: Partial<BookEntity>) => {
     book: book,
     genre: bookData.genres[0],
   };
-  await сonnectionBookAndGenresRepository.save(connections);
+  await genresForBookRepository.save(connections);
   return book;
 };
 
@@ -65,7 +64,7 @@ const getBooks = async (
     .leftJoinAndSelect("book.author", "author");
 
   if (filters && filters.length > 0) {
-    const subQuery = сonnectionBookAndGenresRepository
+    const subQuery = genresForBookRepository
       .createQueryBuilder("connection")
       .select("connection.bookId")
       .where("connection.genreId IN (:...filters)", { filters })
@@ -187,14 +186,14 @@ const createAuthor = async (bookData: { name: string }) => {
 };
 
 const getBookRecommendation = async (bookId: string) => {
-  const genres = await сonnectionBookAndGenresRepository.find({
+  const genres = await genresForBookRepository.find({
     where: { book: { id: Number(bookId) } },
     relations: {
       genre: true,
     },
   });
   const genreIds = genres.map((genre) => genre.genre.id);
-  const recommendations = await сonnectionBookAndGenresRepository.find({
+  const recommendations = await genresForBookRepository.find({
     take: 4,
     where: {
       genre: { id: In(genreIds) },
@@ -249,12 +248,11 @@ const rateBook = async (userId: number, bookData: IRateBook) => {
       book: true,
     },
   });
-  const ratingBook = bookIds.map((rating) => {
-    //изменить имя (Boksretings)
+  const bookRatings = bookIds.map((rating) => {
     return { bookId: rating.book.id, rate: rating.rate };
   });
-  const user = await userRepository.findOneBy({ id: userId });
-  return { user, ratingBook };
+
+  return bookRatings;
 };
 
 const getBookRating = async () => {

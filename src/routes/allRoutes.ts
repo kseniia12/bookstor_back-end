@@ -10,9 +10,9 @@ const allRouter = Router();
 
 allRouter.use("/auth", authRouter);
 allRouter.use("/users", userRouter);
-allRouter.use("/book", bookRouter);
-allRouter.use("/cart", cartRouter);
+allRouter.use("/books", bookRouter);
+allRouter.use("/cart-items", cartRouter);
 allRouter.use("/favorites", favoritesRouter);
-allRouter.use("/comment", commentRouter);
+allRouter.use("/comments", commentRouter);
 
 export default allRouter;

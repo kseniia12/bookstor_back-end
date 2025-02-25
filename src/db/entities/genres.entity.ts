@@ -6,29 +6,30 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { ConnectionBookAndGenres } from "./connectionBookAndGenres.entity";
+import { GenresToBookEntity } from "./genres_to_book.entity";
 
 @Entity("genres")
 export class GenresEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    type: "int",
+  })
   id: number;
 
-  @Column()
+  @Column({
+    type: "varchar",
+  })
   name: string;
 
   @CreateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
   })
-  public createdAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-    onUpdate: "CURRENT_TIMESTAMP(6)",
   })
-  public updatedAt: Date;
+  updatedAt: Date;
 
-  @OneToMany(() => ConnectionBookAndGenres, (genre) => genre.genre)
-  genres: ConnectionBookAndGenres[];
+  @OneToMany(() => GenresToBookEntity, (genre) => genre.genre)
+  genres: GenresToBookEntity[];
 }

@@ -8,23 +8,22 @@ import {
 import { BookEntity } from "./book.entity";
 import { GenresEntity } from "./genres.entity";
 
-@Entity("connectionBookAndGenres")
-export class ConnectionBookAndGenres {
-  @PrimaryGeneratedColumn()
+@Entity("genres_to_book")
+export class GenresToBookEntity {
+  @PrimaryGeneratedColumn({
+    type: "int",
+  })
   id: number;
 
   @CreateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
   })
-  public createdAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-    onUpdate: "CURRENT_TIMESTAMP(6)",
   })
-  public updatedAt: Date;
+  updatedAt: Date;
 
   @ManyToOne(() => BookEntity, (book) => book.genres)
   book: BookEntity;

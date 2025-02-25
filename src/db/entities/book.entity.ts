@@ -7,19 +7,20 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { ConnectionBookAndGenres } from "./connectionBookAndGenres.entity";
+
 import { AuthorEntity } from "./author.entity";
 import { RatingEntity } from "./rating.entity";
-import { CartItemEntity } from "./cart.entity";
+import { CartItemEntity } from "./cart_item.entity";
 import { FavoritesEntity } from "./favorites.entity";
 import { CommentsEntity } from "./comments.entity";
+import { GenresToBookEntity } from "./genres_to_book.entity";
 
 @Entity("book")
 export class BookEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "int" })
   id: number;
 
-  @Column()
+  @Column({ type: "varchar" })
   name: string;
 
   @Column({ type: "float" })
@@ -28,23 +29,33 @@ export class BookEntity {
   @Column({ type: "float" })
   priceHard: number;
 
-  @Column()
+  @Column({ type: "varchar" })
   description: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   cover: string;
 
-  @Column()
+  @Column({ type: "int4" })
   countHard: number;
 
-  @Column()
+  @Column({ type: "int4" })
   countSoft: number;
 
-  @Column({ default: false })
+  @Column({ default: false, type: "bool" })
   bestseller: boolean;
 
-  @OneToMany(() => ConnectionBookAndGenres, (genre) => genre.book)
-  genres: ConnectionBookAndGenres[];
+  @CreateDateColumn({
+    type: "timestamp",
+  })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: "timestamp",
+  })
+  updatedAt: Date;
+
+  @OneToMany(() => GenresToBookEntity, (genre) => genre.book)
+  genres: GenresToBookEntity[];
 
   @ManyToOne(() => AuthorEntity, (author) => author.books)
   author: AuthorEntity;
@@ -60,17 +71,4 @@ export class BookEntity {
 
   @OneToMany(() => CommentsEntity, (comments) => comments.book)
   comments: CommentsEntity[];
-
-  @CreateDateColumn({
-    type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-  })
-  public createdAt: Date;
-
-  @UpdateDateColumn({
-    type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-    onUpdate: "CURRENT_TIMESTAMP(6)",
-  })
-  public updatedAt: Date;
 }

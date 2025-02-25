@@ -15,10 +15,10 @@ import {
 
 export const bookRouter = Router();
 
-bookRouter.post("/create", createBook);
+bookRouter.post("/", createBook);
 bookRouter.post("/createGenres", createGenres);
-bookRouter.post("/upload", uploadingPhotoBook);
-bookRouter.get("/pagination", getBooks);
+bookRouter.post("/cover", uploadingPhotoBook);
+bookRouter.get("/", getBooks);
 bookRouter.get("/filter", getGenresBooks);
 bookRouter.post("/author", createAuthor);
 bookRouter.get("/recommendations", getBookRecommendation);

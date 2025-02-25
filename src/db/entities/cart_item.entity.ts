@@ -11,24 +11,25 @@ import { UserEntity } from "./user.entity";
 
 @Entity("cart_item")
 export class CartItemEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    type: "int",
+  })
   id: number;
 
-  @Column()
+  @Column({
+    type: "int4",
+  })
   count: number;
 
   @CreateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
   })
-  public createdAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-    onUpdate: "CURRENT_TIMESTAMP(6)",
   })
-  public updatedAt: Date;
+  updatedAt: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.cartItems)
   user: UserEntity;

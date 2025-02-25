@@ -7,28 +7,46 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { RatingEntity } from "./rating.entity";
-import { CartItemEntity } from "./cart.entity";
+
 import { FavoritesEntity } from "./favorites.entity";
 import { CommentsEntity } from "./comments.entity";
+import { CartItemEntity } from "./cart_item.entity";
+
 @Entity("user")
 export class UserEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    type: "int",
+  })
   id: number;
 
-  @Column()
+  @Column({
+    type: "varchar",
+  })
   email: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "varchar" })
   fullName: string;
 
-  @Column()
+  @Column({
+    type: "varchar",
+  })
   password: string;
 
   @Column({
     nullable: true,
-    default: "1739961561390-99",
+    type: "varchar",
   })
   photo: string;
+
+  @CreateDateColumn({
+    type: "timestamp",
+  })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: "timestamp",
+  })
+  updatedAt: Date;
 
   @OneToMany(() => RatingEntity, (rating) => rating.user)
   ratings: RatingEntity[];
@@ -41,17 +59,4 @@ export class UserEntity {
 
   @OneToMany(() => CommentsEntity, (comments) => comments.user)
   comments: CommentsEntity[];
-
-  @CreateDateColumn({
-    type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-  })
-  public createdAt: Date;
-
-  @UpdateDateColumn({
-    type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-    onUpdate: "CURRENT_TIMESTAMP(6)",
-  })
-  public updatedAt: Date;
 }

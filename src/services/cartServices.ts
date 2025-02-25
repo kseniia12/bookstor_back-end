@@ -1,7 +1,9 @@
 import { cartRepository } from "../repository/bookRepository";
 
-const deleteBookFromCart = async (bookId: number, userId: number) => {
-  await cartRepository.delete({ book: { id: bookId }, user: { id: userId } });
+const deleteBookFromCart = async (bookIds: number[], userId: number) => {
+  for (const bookId of bookIds) {
+    await cartRepository.delete({ book: { id: bookId }, user: { id: userId } });
+  }
 };
 
 const changeCountBooksInCart = async (
