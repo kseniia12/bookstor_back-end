@@ -29,9 +29,10 @@ const getComment = async (bookId: string) => {
       createdAt: "ASC",
     },
   });
-  return comments.map(({ text, createdAt, user }) => {
+  return comments.map(({ id, text, createdAt, user }) => {
     const { fullName, photo } = user;
     return {
+      id: id,
       comment: text,
       date: createdAt,
       user: {

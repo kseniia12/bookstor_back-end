@@ -1,32 +1,32 @@
 import * as jwt from "jsonwebtoken";
-import config from "../config/config";
 import { UserEntity } from "src/db/entities/user.entity";
 
-export const generateAccessToken = async (user: Partial<UserEntity>) => {
+export const generateTokens = async (
+  user: Partial<UserEntity>,
+  time: string,
+  secret: string,
+) => {
+  console.log("user", user);
   return new Promise<string>((res, rej) => {
-    jwt.sign(
-      { ...user },
-      config.token.secret,
-      { expiresIn: "180000000" },
-      (err, token) => {
-        if (err) {
-          return rej(err);
-        }
-        res(token);
-      },
-    );
+    jwt.sign({ ...user }, secret, { expiresIn: time }, (err, token) => {
+      if (err) {
+        return rej(err);
+      }
+      res(token);
+    });
   });
 };
 
 export const jwtVerifyToken = async (
   token: string,
-): Promise<{ id: number }> => {
+  secret: string,
+): Promise<Partial<UserEntity>> => {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, config.token.secret, (err, token) => {
+    jwt.verify(token, secret, (err, token) => {
       if (err) {
         return reject(err);
       }
-      resolve(token as { id: number });
+      resolve(token as Partial<UserEntity>);
     });
   });
 };

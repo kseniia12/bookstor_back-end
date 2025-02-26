@@ -1,9 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import { formDataUser } from "../utils/checkDataUser";
-import { generateAccessToken } from "../utils/utilsToken";
+
 import userServices from "../services/userServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
 import config from "../config/config";
+import { generateTokens, jwtVerifyToken } from "../utils/utilsToken";
 
 export const createUser = async (
   req: Request,
@@ -13,8 +14,20 @@ export const createUser = async (
   try {
     const user = await userServices.createUser(req.body);
     const checkUser = formDataUser(user);
-    const token = await generateAccessToken(checkUser);
-    res.status(201).json({ user, token });
+    const accessToken = await generateTokens(
+      checkUser,
+      "1800s",
+      config.token.access,
+    );
+    const refreshToken = await generateTokens(
+      checkUser,
+      "7d",
+      config.token.refresh,
+    );
+    res.status(201).json({
+      user,
+      token: { accessToken: accessToken, refreshToken: refreshToken },
+    });
   } catch (error) {
     next(error);
   }
@@ -28,8 +41,20 @@ export const loginUser = async (
   try {
     const user = await userServices.loginUser(req.body);
     const checkUser = formDataUser(user);
-    const token = await generateAccessToken(checkUser);
-    res.status(200).json({ user, token });
+    const accessToken = await generateTokens(
+      checkUser,
+      "1800s",
+      config.token.access,
+    );
+    const refreshToken = await generateTokens(
+      checkUser,
+      "7d",
+      config.token.refresh,
+    );
+    res.status(200).json({
+      user,
+      token: { accessToken: accessToken, refreshToken: refreshToken },
+    });
   } catch (error) {
     next(error);
   }
@@ -96,6 +121,40 @@ export const editPassword = async (
     const userData = req.body.user;
     await userServices.editPassword({ id, userData });
     res.send({ message: "Ok" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const user = await jwtVerifyToken(req.body.refresh, config.token.refresh);
+    const checkUser = {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      photo: user.photo,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+    console.log(checkUser);
+    const accessToken = await generateTokens(
+      checkUser,
+      "1800s",
+      config.token.access,
+    );
+    const refreshToken = await generateTokens(
+      checkUser,
+      "7d",
+      config.token.refresh,
+    );
+    res.status(200).json({
+      token: { accessToken: accessToken, refreshToken: refreshToken },
+    });
   } catch (error) {
     next(error);
   }

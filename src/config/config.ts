@@ -13,7 +13,8 @@ const config = {
     baseUrl: process.env.BASE_URL,
   },
   token: {
-    secret: process.env.TOKEN_SECRET,
+    access: process.env.TOKEN_ACCESS,
+    refresh: process.env.TOKEN_REFRESH,
   },
 };
 
