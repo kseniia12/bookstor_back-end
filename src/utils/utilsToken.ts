@@ -6,7 +6,6 @@ export const generateTokens = async (
   time: string,
   secret: string,
 ) => {
-  console.log("user", user);
   return new Promise<string>((res, rej) => {
     jwt.sign({ ...user }, secret, { expiresIn: time }, (err, token) => {
       if (err) {

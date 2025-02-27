@@ -5,6 +5,7 @@ import userServices from "../services/userServices";
 import { handleSingleUploadFile } from "../utils/uploadSingle";
 import config from "../config/config";
 import { generateTokens, jwtVerifyToken } from "../utils/utilsToken";
+import { userRepository } from "../repository/userRepository";
 
 export const createUser = async (
   req: Request,
@@ -43,7 +44,7 @@ export const loginUser = async (
     const checkUser = formDataUser(user);
     const accessToken = await generateTokens(
       checkUser,
-      "1800s",
+      "1s",
       config.token.access,
     );
     const refreshToken = await generateTokens(
@@ -133,18 +134,11 @@ export const refreshToken = async (
 ): Promise<void> => {
   try {
     const user = await jwtVerifyToken(req.body.refresh, config.token.refresh);
-    const checkUser = {
-      id: user.id,
-      email: user.email,
-      fullName: user.fullName,
-      photo: user.photo,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-    console.log(checkUser);
+    const id = user.id;
+    const checkUser = await userRepository.findOneBy({ id });
     const accessToken = await generateTokens(
       checkUser,
-      "1800s",
+      "1s",
       config.token.access,
     );
     const refreshToken = await generateTokens(
@@ -153,7 +147,8 @@ export const refreshToken = async (
       config.token.refresh,
     );
     res.status(200).json({
-      token: { accessToken: accessToken, refreshToken: refreshToken },
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     });
   } catch (error) {
     next(error);

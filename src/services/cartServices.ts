@@ -1,4 +1,5 @@
 import { cartRepository } from "../repository/bookRepository";
+import config from "../config/config";
 
 const deleteBookFromCart = async (bookIds: number[], userId: number) => {
   for (const bookId of bookIds) {
@@ -34,6 +35,7 @@ const changeCountBooksInCart = async (
   }, 0);
   const book = books.map((boookData) => {
     const { book, count } = boookData;
+    book.cover = `${config.server.baseUrl}/upload/${book.cover}`;
     return { ...book, count };
   });
   return { book, totalPrice };
@@ -64,6 +66,7 @@ const addBookToCart = async (
   }, 0);
   const book = books.map((k) => {
     const { book, count } = k;
+    book.cover = `${config.server.baseUrl}/upload/${book.cover}`;
     return { ...book, count };
   });
   return { book, totalPrice };
@@ -83,6 +86,7 @@ const getBookFromCart = async (userId: number) => {
   }, 0);
   const book = books.map((k) => {
     const { book, count } = k;
+    book.cover = `${config.server.baseUrl}/upload/${book.cover}`;
     return { ...book, count };
   });
   return { book, totalPrice };

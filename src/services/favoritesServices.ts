@@ -1,5 +1,6 @@
 import { IDataForAddFavoritesBook } from "../lib/types";
 import { favoritesRepository } from "../repository/bookRepository";
+import config from "../config/config";
 
 const addBookInFavorites = async (
   dataForAddFavoritesBook: IDataForAddFavoritesBook,
@@ -37,6 +38,7 @@ const addBookInFavorites = async (
   });
   const book = favoritesBooks.map((favorite) => {
     const { book } = favorite;
+    book.cover = `${config.server.baseUrl}/upload/${book.cover}`;
     return book;
   });
   return { book };
@@ -53,6 +55,7 @@ const getBookInFavorites = async (userId: number) => {
   });
   const book = favoritesBooks.map((favorite) => {
     const { book } = favorite;
+    book.cover = `${config.server.baseUrl}/upload/${book.cover}`;
     return book;
   });
   return { book };

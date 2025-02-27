@@ -130,6 +130,7 @@ const getBooks = async (
   });
 
   const booksWithAverageRating = booksArray.map((book) => {
+    book.cover = `${config.server.baseUrl}/upload/${book.cover}`;
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
       ? (ratingSum.sum / ratingSum.count).toFixed(1)
@@ -219,6 +220,7 @@ const getBookRecommendation = async (bookId: string) => {
     ratingSums[bookId].count += 1;
   });
   const book = recommendedBooks.map((book) => {
+    book.cover = `${config.server.baseUrl}/upload/${book.cover}`;
     const ratingSum = ratingSums[book.id];
     const averageRating = ratingSum
       ? (ratingSum.sum / ratingSum.count).toFixed(1)

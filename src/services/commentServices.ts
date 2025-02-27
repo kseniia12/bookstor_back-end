@@ -14,9 +14,13 @@ const addComment = async (
     book: { id: data.bookId },
     text: data.comment,
   });
+  let updatedPhoto = "";
   const user = await userRepository.findOne({ where: { id: userId } });
   const { fullName, photo } = user;
-  return { fullName, photo };
+  if (photo !== null) {
+    updatedPhoto = `${config.server.baseUrl}/upload/${photo}`;
+  }
+  return { fullName, photo: updatedPhoto };
 };
 
 const getComment = async (bookId: string) => {
@@ -31,13 +35,17 @@ const getComment = async (bookId: string) => {
   });
   return comments.map(({ id, text, createdAt, user }) => {
     const { fullName, photo } = user;
+    let updatedPhoto = "";
+    if (photo !== null) {
+      updatedPhoto = `${config.server.baseUrl}/upload/${photo}`;
+    }
     return {
       id: id,
       comment: text,
       date: createdAt,
       user: {
         fullName: fullName,
-        photo: `${config.server.baseUrl}/upload/${photo}`,
+        photo: updatedPhoto,
       },
     };
   });

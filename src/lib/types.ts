@@ -36,14 +36,3 @@ export interface IRateBook {
   bookId: number;
   rate: number;
 }
-
-export interface IResToken {
-  id: number;
-  email: string;
-  fullName: string;
-  photo: string;
-  createdAt: string;
-  updatedAt: string;
-  iat: number;
-  exp: number;
-}
