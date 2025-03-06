@@ -44,7 +44,7 @@ export const loginUser = async (
     const checkUser = formDataUser(user);
     const accessToken = await generateTokens(
       checkUser,
-      "1s",
+      "1800s",
       config.token.access,
     );
     const refreshToken = await generateTokens(
@@ -138,7 +138,7 @@ export const refreshToken = async (
     const checkUser = await userRepository.findOneBy({ id });
     const accessToken = await generateTokens(
       checkUser,
-      "1s",
+      "1800s",
       config.token.access,
     );
     const refreshToken = await generateTokens(
